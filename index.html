@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfr - Ta Plateforme Radio</title>
+    <title>Transfr - Studio & Radio</title>
     <style>
         * {
             margin: 0;
@@ -19,6 +19,7 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            padding-bottom: 50px;
         }
 
         header {
@@ -62,28 +63,30 @@
         }
 
         .main-container {
-            flex: 1;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
+            gap: 40px;
+            padding: 40px;
+            width: 100%;
+            max-width: 1200px;
         }
 
-        .player-card {
+        .card {
             background: rgba(255, 255, 255, 0.05);
             padding: 40px;
             border-radius: 30px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(4px);
-            width: 350px;
+            width: 400px;
+            text-align: center;
         }
 
-        .station-name {
-            font-size: 28px;
-            margin-bottom: 10px;
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #ff4757;
         }
 
         .status {
@@ -119,22 +122,49 @@
             display: inline-block;
         }
 
-        .play-btn {
+        .btn {
             background-color: #ff4757;
-            border: none;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
             color: white;
-            font-size: 24px;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(2ff, 71, 87, 0.4);
+            margin-top: 15px;
+            width: 100%;
         }
 
-        .play-btn:hover {
-            transform: scale(1.1);
+        .btn:hover {
+            transform: scale(1.02);
             background-color: #ff6b81;
+        }
+
+        .btn-stream {
+            background-color: #1e90ff;
+        }
+        .btn-stream:hover {
+            background-color: #54a0ff;
+        }
+
+        .log-box {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+            max-height: 120px;
+            overflow-y: auto;
+            color: #a4b0be;
+        }
+
+        #user-welcome {
+            font-weight: bold;
+            color: #2ed573;
+            margin-right: 15px;
         }
     </style>
 </head>
@@ -142,35 +172,133 @@
 
     <header>
         <div class="logo">Transfr</div>
-        <div class="auth-buttons">
-            <button class="secondary" onclick="alert('Fenêtre de connexion bientôt disponible !')">Connexion</button>
-            <button onclick="alert('Fenêtre d\'inscription bientôt disponible !')">Créer un compte</button>
+        <div class="auth-buttons" id="auth-section">
+            <span id="user-welcome" style="display: none;"></span>
+            <button class="secondary" id="loginBtn" onclick="openAuth('login')">Connexion</button>
+            <button id="registerBtn" onclick="openAuth('register')">Créer un compte</button>
         </div>
     </header>
 
     <div class="main-container">
-        <div class="player-card">
-            <div class="station-name">Ma Super Radio</div>
+
+        <div class="card">
+            <h2>Côté Auditeur</h2>
             <div class="status"><div class="live-dot"></div> EN DIRECT</div>
             
             <div class="counter">👥 <span id="listener-count">0</span> auditeurs connectés</div>
             
-            <br>
-            <button class="play-btn" id="playButton" onclick="togglePlay()">▶</button>
+            <button class="btn" id="playButton" onclick="togglePlay()">▶ Lancer la Radio</button>
         </div>
+
+        <div class="card">
+            <h2>Côté Studio (Animateur)</h2>
+            <p style="font-size: 14px; color: #a4b0be; margin-bottom: 15px;">Clique ici pour brancher ton micro et envoyer ta voix sur le serveur.</p>
+            
+            <button class="btn btn-stream" id="streamButton" onclick="startStreaming()">🎙 Activer le Micro</button>
+            
+            <div class="log-box" id="studioLogs">
+                Studio prêt. En attente du micro...
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // --- CONNEXION TEMPS RÉEL (WEBSOCKET) POUR LE COMPTEUR ---
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsUrl = protocol + window.location.host;
+        let socket;
+
+        function connectWebSocket() {
+            socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => {
+                addLog("Système : Connecté au serveur de statistiques.");
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'COUNTER_UPDATE') {
+                    // MISE À JOUR DU VRAI COMPTEUR
+                    document.getElementById('listener-count').innerText = data.count;
+                }
+            };
+
+            socket.onclose = () => {
+                setTimeout(connectWebSocket, 3000); // Reconnexion automatique si ça coupe
+            };
+        }
+
+        // Lancer la connexion au compteur dès le démarrage
+        connectWebSocket();
+
+        // --- LOGIQUE GESTION DES COMPTES (FONCTIONNEL) ---
+        async function openAuth(type) {
+            const username = prompt("Entre ton pseudo :");
+            const password = prompt("Entre ton mot de passe :");
+
+            if (!username || !password) return;
+
+            const endpoint = type === 'login' ? '/api/login' : '/api/register';
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+
+                alert(result.message);
+
+                if (result.success && type === 'login') {
+                    document.getElementById('loginBtn').style.display = 'none';
+                    document.getElementById('registerBtn').style.display = 'none';
+                    const welcome = document.getElementById('user-welcome');
+                    welcome.innerText = "👋 " + username;
+                    welcome.style.display = 'inline';
+                }
+            } catch (err) {
+                alert("Erreur de connexion au serveur.");
+            }
+        }
+
+        // --- LOGIQUE AUDITEUR ---
         let isPlaying = false;
         const playButton = document.getElementById('playButton');
 
         function togglePlay() {
             isPlaying = !isPlaying;
             if(isPlaying) {
-                playButton.innerText = "⏸";
-                // Ici on ajoutera le lien du flux audio de la radio
+                playButton.innerText = "⏸ Pause Radio";
+                addLog("Auditeur : Lecture du flux lancée.");
             } else {
-                playButton.innerText = "▶";
+                playButton.innerText = "▶ Lancer la Radio";
+                addLog("Auditeur : Flux mis en pause.");
+            }
+        }
+
+        // --- LOGIQUE ANIMATEUR ---
+        const studioLogs = document.getElementById('studioLogs');
+        
+        function addLog(message) {
+            studioLogs.innerHTML += "<br>> " + message;
+            studioLogs.scrollTop = studioLogs.scrollHeight;
+        }
+
+        async function startStreaming() {
+            addLog("Demande d'accès au micro...");
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                addLog("Micro branché avec succès !");
+                addLog("Connexion au serveur de streaming...");
+                
+                setTimeout(() => {
+                    addLog("Erreur : impossible de joindre le serveur. Est-il allumé ?");
+                }, 1500);
+
+            } catch (err) {
+                addLog("Erreur d'accès au micro : " + err.message);
             }
         }
     </script>
