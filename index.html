@@ -17,9 +17,10 @@
             color: #ffffff;
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* BARRE LATÉRALE (SIDEBAR) SUR LE CÔTÉ */
+        /* BARRE LATÉRALE (SIDEBAR) */
         .sidebar {
             width: 280px;
             background-color: rgba(0, 0, 0, 0.4);
@@ -28,6 +29,7 @@
             display: flex;
             flex-direction: column;
             padding: 30px 20px;
+            z-index: 10;
         }
 
         .logo {
@@ -79,6 +81,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
 
         header {
@@ -110,7 +113,7 @@
             transform: scale(1.05);
         }
 
-        /* LES ONGLETS (CACHÉS PAR DÉFAUT SAUF L'ACTIF) */
+        /* LES ONGLETS */
         .tab-content {
             display: none;
             width: 100%;
@@ -207,11 +210,52 @@
             background: rgba(0,0,0,0.2);
             color: white;
             font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #ff4757;
+        }
+
+        /* FENÊTRE D'INSCRIPTION EN PLEIN MILIEU (OVERLAY) */
+        .auth-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 11, 27, 0.95);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .close-auth {
+            background: transparent;
+            color: #a4b0be;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 15px;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
+    <!-- BARRE LATÉRALE -->
     <div class="sidebar">
         <div class="logo">Transfr</div>
         <button class="menu-btn active" onclick="switchTab('tab-listen', this)">📻 Écouter la Radio</button>
@@ -219,24 +263,27 @@
         <button class="menu-btn" onclick="switchTab('tab-settings', this)">⚙️ Configuration</button>
     </div>
 
+    <!-- CONTENU PRINCIPAL -->
     <div class="main-content">
         <header>
             <div class="auth-buttons" id="auth-section">
                 <span id="user-welcome" style="display: none; color: #2ed573; margin-right: 15px; font-weight: bold;"></span>
-                <button class="secondary" id="loginBtn" onclick="openAuth('login')">Connexion</button>
-                <button id="registerBtn" onclick="openAuth('register')">Créer un compte</button>
+                <button class="secondary" id="loginBtn" onclick="showAuthPage('login')">Connexion</button>
+                <button id="registerBtn" onclick="showAuthPage('register')">Créer un compte</button>
             </div>
         </header>
 
+        <!-- ONGLET 1 : LECTEUR -->
         <div id="tab-listen" class="tab-content active">
             <div class="card">
-                <h2 id="display-radio-name">Ma Super Radio</h2>
+                <h2 id="display-radio-name">Transfr On Air</h2>
                 <div class="status"><div class="live-dot"></div> EN DIRECT</div>
                 <div class="counter">👥 <span id="listener-count">0</span> auditeurs connectés</div>
                 <button class="btn" id="playButton" onclick="togglePlay()">▶ Lancer la Radio</button>
             </div>
         </div>
 
+        <!-- ONGLET 2 : STUDIO -->
         <div id="tab-studio" class="tab-content">
             <div class="card">
                 <h2>Studio Animateur</h2>
@@ -246,6 +293,7 @@
             </div>
         </div>
 
+        <!-- ONGLET 3 : CONFIGURATION -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>Paramètres Radio</h2>
@@ -256,8 +304,24 @@
         </div>
     </div>
 
+    <!-- VRAIE PAGE D'INSCRIPTION / CONNEXION (EN PLEIN MILIEU) -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h2 id="authTitle">Créer un compte</h2>
+            <p id="authError" style="color: #ff4757; font-size: 14px; margin-bottom: 10px; display: none;"></p>
+            
+            <input type="text" id="authUsername" placeholder="Choisis un pseudo">
+            <input type="password" id="authPassword" placeholder="Mot de passe">
+            
+            <button class="btn" id="authSubmitBtn" onclick="submitAuth()">Valider</button>
+            <br>
+            <button class="close-auth" onclick="hideAuthPage()">Annuler et retourner au site</button>
+        </div>
+    </div>
+
     <script>
         let isLoggedIn = false;
+        let currentAuthAction = 'register';
 
         // CHANGER D'ONGLET
         function switchTab(tabId, button) {
@@ -277,13 +341,40 @@
             document.getElementById('display-radio-name').innerText = name;
         }
 
-        // --- GESTION DES COMPTES & DÉVERROUILLAGE ---
-        async function openAuth(type) {
-            const username = prompt("Entre ton pseudo :");
-            const password = prompt("Entre ton mot de passe :");
-            if (!username || !password) return;
+        // AFFICHER LA PAGE D'INSCRIPTION/CONNEXION EN PLEIN MILIEU
+        function showAuthPage(type) {
+            currentAuthAction = type;
+            document.getElementById('authError').style.display = 'none';
+            document.getElementById('authUsername').value = '';
+            document.getElementById('authPassword').value = '';
+            
+            if (type === 'login') {
+                document.getElementById('authTitle').innerText = "Connexion à ton espace";
+                document.getElementById('authSubmitBtn').innerText = "Se connecter";
+            } else {
+                document.getElementById('authTitle').innerText = "Créer un compte Transfr";
+                document.getElementById('authSubmitBtn').innerText = "Créer mon compte";
+            }
+            document.getElementById('authOverlay').style.display = 'flex';
+        }
 
-            const endpoint = type === 'login' ? '/api/login' : '/api/register';
+        function hideAuthPage() {
+            document.getElementById('authOverlay').style.display = 'none';
+        }
+
+        // ENVOI AU SERVEUR SANS POP-UP CRADE
+        async function submitAuth() {
+            const username = document.getElementById('authUsername').value;
+            const password = document.getElementById('authPassword').value;
+            const errorDiv = document.getElementById('authError');
+
+            if (!username || !password) {
+                errorDiv.innerText = "Remplis tous les champs !";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const endpoint = currentAuthAction === 'login' ? '/api/login' : '/api/register';
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -291,24 +382,36 @@
                     body: JSON.stringify({ username, password })
                 });
                 const result = await response.json();
-                alert(result.message);
 
-                if (result.success && type === 'login') {
-                    isLoggedIn = true;
-                    document.getElementById('loginBtn').style.display = 'none';
-                    document.getElementById('registerBtn').style.display = 'none';
-                    
-                    const welcome = document.getElementById('user-welcome');
-                    welcome.innerText = "👋 " + username;
-                    welcome.style.display = 'inline';
+                if (!result.success) {
+                    errorDiv.innerText = result.message;
+                    errorDiv.style.display = 'block';
+                } else {
+                    hideAuthPage();
+                    if (currentAuthAction === 'login') {
+                        isLoggedIn = true;
+                        document.getElementById('loginBtn').style.display = 'none';
+                        document.getElementById('registerBtn').style.display = 'none';
+                        
+                        const welcome = document.getElementById('user-welcome');
+                        welcome.innerText = "👋 " + username;
+                        welcome.style.display = 'inline';
 
-                    // DÉBLOQUER L'ONGLET STUDIO
-                    const studioBtn = document.getElementById('studio-menu-btn');
-                    studioBtn.classList.remove('locked');
-                    studioBtn.removeAttribute('disabled');
+                        const studioBtn = document.getElementById('studio-menu-btn');
+                        studioBtn.classList.remove('locked');
+                        studioBtn.removeAttribute('disabled');
+                    } else {
+                        // Si inscription réussie, on le bascule sur la connexion
+                        showAuthPage('login');
+                        errorDiv.innerText = "Compte créé ! Connecte-toi maintenant.";
+                        errorDiv.style.color = "#2ed573";
+                        errorDiv.style.display = 'block';
+                    }
                 }
             } catch (err) {
-                alert("Erreur de connexion au serveur. Lance d'abord le serveur dans ton terminal !");
+                errorDiv.innerText = "⚠️ Erreur : Le serveur Node.js n'est pas allumé.";
+                errorDiv.style.color = "#ff4757";
+                errorDiv.style.display = 'block';
             }
         }
 
@@ -342,7 +445,7 @@
             studioLogs.innerHTML += "<br>> Demande du micro...";
             try {
                 await navigator.mediaDevices.getUserMedia({ audio: true });
-                studioLogs.innerHTML += "<br>> Micro branché ! Tentative de flux...";
+                studioLogs.innerHTML += "<br>> Micro branché !";
             } catch (err) {
                 studioLogs.innerHTML += "<br>> Erreur micro : " + err.message;
             }
