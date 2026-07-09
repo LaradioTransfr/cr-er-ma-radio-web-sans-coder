@@ -37,7 +37,7 @@
         .counter-box::after { content: attr(data-tooltip); position: absolute; top: -35px; left: 50%; transform: translateX(-50%) scale(0.8); background: #ff4757; color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; white-space: nowrap; opacity: 0; transition: 0.2s; pointer-events: none; }
         .counter-box:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
 
-        /* GROS COMPTEUR POUR LE STUDIO DE L'ANIMATEUR */
+        /* GROS COMPTEUR POUR LE STUDIO */
         .studio-counter { background: rgba(255, 71, 87, 0.1); border: 2px solid rgba(255, 71, 87, 0.3); padding: 15px 25px; border-radius: 16px; display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
         .studio-counter-number { font-size: 42px; font-weight: 800; color: #ff4757; line-height: 1; margin-bottom: 5px; }
         .studio-counter-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #a4b0be; font-weight: bold; }
@@ -88,12 +88,12 @@
     </div>
 
     <div class="main-content">
+        <!-- 1. LECTEUR AUDITEUR -->
         <div id="tab-listen" class="tab-content active">
             <div class="card">
                 <div class="counter-box" id="userCounterBox" data-tooltip="0 utilisateur">
                     <div class="counter-bar" id="userCounterBar"></div>
                 </div>
-
                 <div class="radio-avatar-preview">
                     <span id="noPhotoText">Pas de logo</span>
                     <img id="playerAvatarImg" src="" style="display: none;">
@@ -104,6 +104,7 @@
             </div>
         </div>
 
+        <!-- 2. STUDIO ANIMATEUR -->
         <div id="tab-studio" class="tab-content">
             <div class="card">
                 <h2>Studio Animateur Direct</h2>
@@ -120,12 +121,14 @@
             </div>
         </div>
 
+        <!-- 3. MULTISTREAMING -->
         <div id="tab-social" class="tab-content">
             <div class="card" style="max-height: 75vh; overflow-y: auto;">
                 <h2>Diffusion Multi-Réseaux</h2>
                 <p class="subtitle">Active les réseaux pour diffuser partout en même temps.</p>
                 
                 <div class="social-layout">
+                    <!-- YOUTUBE -->
                     <div class="social-row">
                         <div class="social-header">
                             <strong>🔴 YouTube Live</strong>
@@ -138,6 +141,7 @@
                         </div>
                     </div>
 
+                    <!-- TWITCH -->
                     <div class="social-row">
                         <div class="social-header">
                             <strong>👾 Twitch TV</strong>
@@ -150,6 +154,7 @@
                         </div>
                     </div>
 
+                    <!-- INSTAGRAM -->
                     <div class="social-row">
                         <div class="social-header">
                             <strong>📸 Instagram Live</strong>
@@ -164,6 +169,7 @@
             </div>
         </div>
 
+        <!-- 4. CONFIGURATION -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>Configuration Radio</h2>
@@ -175,6 +181,7 @@
         </div>
     </div>
 
+    <!-- CONNEXION / INSCRIPTION -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
             <h2 id="authTitle">Création de Compte</h2>
@@ -230,9 +237,7 @@
             };
         }
 
-        // Met à jour les deux compteurs en même temps !
         function updateAllCounters(count) {
-            // 1. Mise à jour de la jauge (Auditeur)
             const box = document.getElementById('userCounterBox');
             const bar = document.getElementById('userCounterBar');
             box.setAttribute('data-tooltip', count + " utilisateur(s)");
@@ -242,7 +247,6 @@
             else if (count >= 2) fillHeight = 100;
             bar.style.height = fillHeight + '%';
 
-            // 2. Mise à jour du gros numéro dans le Studio
             document.getElementById('studioUserCount').innerText = count;
         }
 
@@ -264,6 +268,9 @@
                 globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 const source = audioContext.createMediaStreamSource(globalStream);
                 
+                // RETOUR CASQUE ACTIVÉ ICI :
+                source.connect(audioContext.destination);
+
                 processor = audioContext.createScriptProcessor(4096, 1, 1);
                 source.connect(processor);
                 processor.connect(audioContext.destination);
@@ -284,7 +291,7 @@
                 btn.innerText = "🛑 Arrêter le direct";
                 btn.className = "btn btn-stop";
                 statusTxt.innerText = "🔴 VOUS ÊTES EN DIRECT";
-                logs.innerHTML = "🎙️ Diffusion active ! Le son de ton micro est envoyé au serveur.";
+                logs.innerHTML = "🎙️ Diffusion active ! Retour casque branché (mets bien ton casque !).";
             } catch (err) { 
                 isStreaming = false;
                 btn.innerText = "⚠️ Erreur de connexion";
