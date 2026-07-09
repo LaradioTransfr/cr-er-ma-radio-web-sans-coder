@@ -3,34 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfr - Multi-Stream Absolu</title>
+    <title>Transfr - Multi-Stream & Mémoire</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: linear-gradient(135deg, #1e1e2f, #11111b); color: #ffffff; display: flex; min-height: 100vh; overflow-x: hidden; }
+        
+        /* SIDEBAR */
         .sidebar { width: 280px; background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(10px); border-right: 1px solid rgba(255, 255, 255, 0.1); display: flex; flex-direction: column; padding: 30px 20px; z-index: 10; }
         .logo { font-size: 26px; font-weight: bold; color: #ff4757; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 40px; text-align: center; }
-        .menu-btn { background: transparent; color: #a4b0be; border: none; padding: 15px 20px; text-align: left; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; display: flex; align-items: center; gap: 12px; }
+        .menu-btn { background: transparent; color: #a4b0be; border: none; padding: 15px 20px; text-align: left; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; display: flex; align-items: center; gap: 12px; width: 100%; }
         .menu-btn:hover, .menu-btn.active { background-color: #ff4757; color: white; }
         .menu-btn.locked { opacity: 0.4; cursor: not-allowed; }
         .menu-btn.locked:hover { background: transparent; color: #a4b0be; }
+        
+        /* ZONE PRINCIPALE */
         .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; position: relative; }
         header { width: 100%; display: flex; justify-content: flex-end; align-items: center; margin-bottom: 40px; }
+        
         .auth-buttons button { background-color: #ff4757; color: white; border: none; padding: 10px 20px; margin-left: 10px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .auth-buttons button.secondary { background-color: transparent; border: 2px solid #ffffff; }
+        .auth-buttons button.logout-btn { background-color: #747d8c; }
+        
+        /* ONGLETS & CARDS */
         .tab-content { display: none; width: 100%; max-width: 550px; }
         .tab-content.active { display: block; }
         .card { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); text-align: center; width: 100%; margin-bottom: 20px; }
+        
         h2 { margin-bottom: 20px; font-size: 24px; color: #ff4757; }
         .status { color: #2ed573; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .live-dot { width: 10px; height: 10px; background-color: #2ed573; border-radius: 50%; animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
         .counter { background: rgba(0, 0, 0, 0.2); padding: 8px 15px; border-radius: 15px; font-size: 14px; margin-bottom: 20px; display: inline-block; }
+        
+        /* ZONE PHOTO DE LA RADIO */
+        .radio-avatar-preview { width: 150px; height: 150px; border-radius: 20px; background-color: rgba(255,255,255,0.1); margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed rgba(255,255,255,0.3); }
+        .radio-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
         .btn { background-color: #ff4757; color: white; border: none; padding: 15px 30px; border-radius: 25px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 15px; }
         .btn:hover { background-color: #ff6b81; }
         .btn-stream { background-color: #1e90ff; }
+        
         .log-box { background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; margin-top: 20px; font-family: monospace; font-size: 12px; text-align: left; max-height: 120px; overflow-y: auto; color: #a4b0be; }
-        input { width: 100%; padding: 12px 20px; margin: 10px 0; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; font-size: 16px; outline: none; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 12px 20px; margin: 10px 0; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; font-size: 16px; outline: none; }
         .social-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; }
+        
+        /* AUTH OVERLAY */
         .auth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11, 11, 27, 0.95); z-index: 100; justify-content: center; align-items: center; }
         .auth-card { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 400px; text-align: center; }
         .close-auth { background: transparent; color: #a4b0be; border: none; cursor: pointer; font-size: 14px; margin-top: 15px; text-decoration: underline; }
@@ -52,11 +69,17 @@
                 <span id="user-welcome" style="display: none; color: #2ed573; margin-right: 15px; font-weight: bold;"></span>
                 <button class="secondary" id="loginBtn" onclick="showAuthPage('login')">Connexion</button>
                 <button id="registerBtn" onclick="showAuthPage('register')">Créer un compte</button>
+                <button id="logoutBtn" class="logout-btn" style="display: none;" onclick="logout()">Déconnexion</button>
             </div>
         </header>
 
         <div id="tab-listen" class="tab-content active">
             <div class="card">
+                <div class="radio-avatar-preview" id="playerAvatarView">
+                    <span style="color: #a4b0be; font-size: 14px;" id="noPhotoText">Aucune photo</span>
+                    <img id="playerAvatarImg" src="" style="display: none;">
+                </div>
+                
                 <h2 id="display-radio-name">Transfr On Air</h2>
                 <div class="status"><div class="live-dot"></div> EN DIRECT</div>
                 <div class="counter">👥 <span id="listener-count">0</span> auditeurs connectés</div>
@@ -67,65 +90,43 @@
         <div id="tab-studio" class="tab-content">
             <div class="card">
                 <h2>Studio Animateur</h2>
-                <p style="font-size: 14px; color: #a4b0be; margin-bottom: 15px;">Lance ton live ici pour envoyer le flux sur le site et TOUS les réseaux cochés.</p>
+                <p style="font-size: 14px; color: #a4b0be; margin-bottom: 15px;">Ton studio est prêt à diffuser partout.</p>
                 <button class="btn btn-stream" id="streamButton" onclick="startStreaming()">🎙 Lancer le Grand Live Global</button>
-                <div class="log-box" id="studioLogs">Studio en attente...</div>
+                <div class="log-box" id="studioLogs">Studio chargé.</div>
             </div>
         </div>
 
         <div id="tab-social" class="tab-content">
             <div class="card" style="max-height: 75vh; overflow-y: auto;">
                 <h2>Réseaux Sociaux Connectés</h2>
-                <p style="font-size: 14px; color: #a4b0be; margin-bottom: 20px;">Configure tes clés de flux pour chaque plateforme :</p>
+                <p style="font-size: 14px; color: #a4b0be; margin-bottom: 20px;">Tes clés restent gardées en mémoire de ton navigateur.</p>
                 
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>🔴 YouTube Live</strong>
-                        <input type="password" id="ytKey" placeholder="Clé de flux YouTube">
-                    </div>
-                    <input type="checkbox" id="ytToggle">
+                    <div style="flex:1; margin-right:10px;"><strong>🔴 YouTube Live</strong><input type="password" id="ytKey" placeholder="Clé de flux"></div>
+                    <input type="checkbox" id="ytToggle" onchange="saveSocialConfig()">
                 </div>
-
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>🎵 TikTok Live</strong>
-                        <input type="password" id="tiktokKey" placeholder="Clé de flux TikTok">
-                    </div>
-                    <input type="checkbox" id="tiktokToggle">
+                    <div style="flex:1; margin-right:10px;"><strong>👾 Twitch</strong><input type="password" id="twitchKey" placeholder="Clé de flux"></div>
+                    <input type="checkbox" id="twitchToggle" onchange="saveSocialConfig()">
                 </div>
-
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>👾 Twitch</strong>
-                        <input type="password" id="twitchKey" placeholder="Clé de flux Twitch">
-                    </div>
-                    <input type="checkbox" id="twitchToggle">
+                    <div style="flex:1; margin-right:10px;"><strong>📸 Instagram Live</strong><input type="password" id="instaKey" placeholder="Clé de flux"></div>
+                    <input type="checkbox" id="instaToggle" onchange="saveSocialConfig()">
                 </div>
-
-                <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>📸 Instagram Live</strong>
-                        <input type="password" id="instaKey" placeholder="Clé de flux Instagram">
-                    </div>
-                    <input type="checkbox" id="instaToggle">
-                </div>
-
-                <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>💙 Facebook Live</strong>
-                        <input type="password" id="fbKey" placeholder="Clé de flux Facebook">
-                    </div>
-                    <input type="checkbox" id="fbToggle">
-                </div>
-                
-                <button class="btn" onclick="saveSocialConfig()">💾 Verrouiller la configuration</button>
             </div>
         </div>
 
         <div id="tab-settings" class="tab-content">
             <div class="card">
-                <h2>Paramètres Radio</h2>
-                <input type="text" id="radioNameInput" value="Transfr On Air" oninput="updateRadioName()">
+                <h2>Paramètres de ma Radio</h2>
+                
+                <label style="text-align: left; display: block; font-size: 14px; color: #a4b0be; margin-bottom: 5px;">Nom de ta station :</label>
+                <input type="text" id="radioNameInput" value="Transfr On Air" oninput="saveRadioSettings()">
+                
+                <label style="text-align: left; display: block; font-size: 14px; color: #a4b0be; margin-top: 20px; margin-bottom: 10px;">Photo de profil de la radio :</label>
+                <input type="file" id="radioPhotoFile" accept="image/*" onchange="uploadRadioPhoto()" style="color: white; font-size: 14px;">
+                
+                <p style="font-size: 12px; color: #2ed573; margin-top: 15px;">💾 Sauvegarde automatique activée !</p>
             </div>
         </div>
     </div>
@@ -146,6 +147,36 @@
         let isLoggedIn = false;
         let currentAuthAction = 'register';
 
+        // --- CHARGEMENT DE LA MÉMOIRE (LOCALSTORAGE) AU DÉMARRAGE ---
+        window.onload = function() {
+            // 1. Reconnecter le compte si gardé en mémoire
+            const savedUser = localStorage.getItem('transfr_logged_user');
+            if (savedUser) {
+                activateLoggedInUI(savedUser);
+            }
+            
+            // 2. Charger le nom de la radio gardé en mémoire
+            const savedRadioName = localStorage.getItem('transfr_radio_name');
+            if (savedRadioName) {
+                document.getElementById('radioNameInput').value = savedRadioName;
+                document.getElementById('display-radio-name').innerText = savedRadioName;
+            }
+
+            // 3. Charger la photo enregistrée
+            const savedPhoto = localStorage.getItem('transfr_radio_photo');
+            if (savedPhoto) {
+                displayPhoto(savedPhoto);
+            }
+
+            // 4. Charger la config des clés réseaux
+            document.getElementById('ytKey').value = localStorage.getItem('transfr_yt_key') || '';
+            document.getElementById('ytToggle').checked = localStorage.getItem('transfr_yt_toggle') === 'true';
+            document.getElementById('twitchKey').value = localStorage.getItem('transfr_twitch_key') || '';
+            document.getElementById('twitchToggle').checked = localStorage.getItem('transfr_twitch_toggle') === 'true';
+            document.getElementById('instaKey').value = localStorage.getItem('transfr_insta_key') || '';
+            document.getElementById('instaToggle').checked = localStorage.getItem('transfr_insta_toggle') === 'true';
+        };
+
         function switchTab(tabId, button) {
             if (button.classList.contains('locked')) { alert("🔒 Connecte-toi d'abord !"); return; }
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -154,7 +185,44 @@
             button.classList.add('active');
         }
 
-        function updateRadioName() { document.getElementById('display-radio-name').innerText = document.getElementById('radioNameInput').value; }
+        // SAUVEGARDE DU NOM DE LA RADIO EN TEMPS RÉEL
+        function saveRadioSettings() {
+            const name = document.getElementById('radioNameInput').value;
+            document.getElementById('display-radio-name').innerText = name;
+            localStorage.setItem('transfr_radio_name', name);
+        }
+
+        // CONVERTIR ET SAUVEGARDER LA PHOTO DE LA RADIO EN MÉMOIRE
+        function uploadRadioPhoto() {
+            const file = document.getElementById('radioPhotoFile').files[0];
+            const reader = new FileReader();
+
+            reader.onloadend = function() {
+                const base64Image = reader.result;
+                localStorage.setItem('transfr_radio_photo', base64Image); // Enregistré en mémoire !
+                displayPhoto(base64Image);
+            }
+
+            if (file) { reader.readAsDataURL(file); }
+        }
+
+        function displayPhoto(imageData) {
+            document.getElementById('noPhotoText').style.display = 'none';
+            const img = document.getElementById('playerAvatarImg');
+            img.src = imageData;
+            img.style.display = 'block';
+        }
+
+        // SAUVEGARDER CONFIG RESEAUX SOCIAUX
+        function saveSocialConfig() {
+            localStorage.setItem('transfr_yt_key', document.getElementById('ytKey').value);
+            localStorage.setItem('transfr_yt_toggle', document.getElementById('ytToggle').checked);
+            localStorage.setItem('transfr_twitch_key', document.getElementById('twitchKey').value);
+            localStorage.setItem('transfr_twitch_toggle', document.getElementById('twitchToggle').checked);
+            localStorage.setItem('transfr_insta_key', document.getElementById('instaKey').value);
+            localStorage.setItem('transfr_insta_toggle', document.getElementById('instaToggle').checked);
+        }
+
         function showAuthPage(type) { currentAuthAction = type; document.getElementById('authError').style.display = 'none'; document.getElementById('authOverlay').style.display = 'flex'; }
         function hideAuthPage() { document.getElementById('authOverlay').style.display = 'none'; }
 
@@ -170,37 +238,45 @@
                 else {
                     hideAuthPage();
                     if (currentAuthAction === 'login') {
-                        isLoggedIn = true;
-                        document.getElementById('loginBtn').style.display = 'none';
-                        document.getElementById('registerBtn').style.display = 'none';
-                        document.getElementById('user-welcome').innerText = "👋 " + username; document.getElementById('user-welcome').style.display = 'inline';
-                        document.getElementById('studio-menu-btn').classList.remove('locked'); document.getElementById('studio-menu-btn').removeAttribute('disabled');
-                        document.getElementById('social-menu-btn').classList.remove('locked'); document.getElementById('social-menu-btn').removeAttribute('disabled');
+                        // On garde en mémoire qu'on est connecté !
+                        localStorage.setItem('transfr_logged_user', username);
+                        activateLoggedInUI(username);
                     } else { showAuthPage('login'); }
                 }
             } catch (err) { errorDiv.innerText = "Serveur éteint."; errorDiv.style.display = 'block'; }
         }
 
-        function saveSocialConfig() { alert("🚀 Tous tes réseaux sociaux sont configurés et prêts !"); }
+        function activateLoggedInUI(username) {
+            isLoggedIn = true;
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('registerBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'inline-block';
+            document.getElementById('user-welcome').innerText = "👋 " + username; 
+            document.getElementById('user-welcome').style.display = 'inline';
+            
+            // Débloquer les onglets
+            document.getElementById('studio-menu-btn').classList.remove('locked'); document.getElementById('studio-menu-btn').removeAttribute('disabled');
+            document.getElementById('social-menu-btn').classList.remove('locked'); document.getElementById('social-menu-btn').removeAttribute('disabled');
+        }
 
+        // DECONNEXION : EFFACE LE COMPTE DE LA MEMOIRE IMMÉDIATE
+        function logout() {
+            localStorage.removeItem('transfr_logged_user'); // Supprime la session
+            window.location.reload(); // Rafraîchit la page pour tout rebloquer proprement
+        }
+
+        // --- MICRO & STREAMING ---
         async function startStreaming() {
             const studioLogs = document.getElementById('studioLogs');
+            saveSocialConfig(); // On s'assure de sauvegarder les clés avant le live
             studioLogs.innerHTML += "<br>> Initialisation du flux global...";
             try {
                 await navigator.mediaDevices.getUserMedia({ audio: true });
-                studioLogs.innerHTML += "<br>> 🎙️ Micro capturé avec succès !";
-                
-                // Envoi des ordres de duplication vers le serveur selon les cases cochées
-                if (document.getElementById('ytToggle').checked) studioLogs.innerHTML += "<br>> 📡 Envoi simultané vers YouTube activé !";
-                if (document.getElementById('tiktokToggle').checked) studioLogs.innerHTML += "<br>> 📡 Envoi simultané vers TikTok activé !";
-                if (document.getElementById('twitchToggle').checked) studioLogs.innerHTML += "<br>> 📡 Envoi simultané vers Twitch activé !";
-                if (document.getElementById('instaToggle').checked) studioLogs.innerHTML += "<br>> 📡 Envoi simultané vers Instagram activé !";
-                if (document.getElementById('fbToggle').checked) studioLogs.innerHTML += "<br>> 📡 Envoi simultané vers Facebook activé !";
-                
-                studioLogs.innerHTML += "<br>> 🔥 Transfr diffuse partout en même temps !";
+                studioLogs.innerHTML += "<br>> 🎙️ Micro capturé ! Multistream en cours...";
             } catch (err) { studioLogs.innerHTML += "<br>> Erreur : " + err.message; }
         }
 
+        // COUPLAGE COMPTEUR REEL
         const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
         let socket;
         function connectWebSocket() {
