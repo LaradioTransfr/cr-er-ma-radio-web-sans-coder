@@ -42,6 +42,10 @@
         .studio-counter-number { font-size: 42px; font-weight: 800; color: #ff4757; line-height: 1; margin-bottom: 5px; }
         .studio-counter-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #a4b0be; font-weight: bold; }
 
+        /* OPTION RETOUR MICRO ACCOUPLE */
+        .monitor-box { background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; margin-bottom: 15px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; color: #ff6b81; cursor: pointer; }
+        .monitor-box input { cursor: pointer; width: 18px; height: 18px; accent-color: #ff4757; }
+
         .radio-avatar-preview { width: 120px; height: 120px; border-radius: 25px; background-color: rgba(255,255,255,0.05); margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed rgba(255,255,255,0.15); }
         .radio-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -88,7 +92,6 @@
     </div>
 
     <div class="main-content">
-        <!-- 1. LECTEUR AUDITEUR -->
         <div id="tab-listen" class="tab-content active">
             <div class="card">
                 <div class="counter-box" id="userCounterBox" data-tooltip="0 utilisateur">
@@ -104,7 +107,6 @@
             </div>
         </div>
 
-        <!-- 2. STUDIO ANIMATEUR -->
         <div id="tab-studio" class="tab-content">
             <div class="card">
                 <h2>Studio Animateur Direct</h2>
@@ -116,19 +118,22 @@
                 </div>
                 <br>
 
+                <label class="monitor-box">
+                    <input type="checkbox" id="monitorToggle">
+                    <span>🎧 Activer le retour audio dans mes haut-parleurs / casque</span>
+                </label>
+
                 <button class="btn btn-start" id="streamButton" onclick="handleStreamToggle()">🎙️ Lancer le direct</button>
                 <div class="log-box" id="studioLogs">Studio prêt. Clique sur le bouton pour diffuser.</div>
             </div>
         </div>
 
-        <!-- 3. MULTISTREAMING -->
         <div id="tab-social" class="tab-content">
             <div class="card" style="max-height: 75vh; overflow-y: auto;">
                 <h2>Diffusion Multi-Réseaux</h2>
                 <p class="subtitle">Active les réseaux pour diffuser partout en même temps.</p>
                 
                 <div class="social-layout">
-                    <!-- YOUTUBE -->
                     <div class="social-row">
                         <div class="social-header">
                             <strong>🔴 YouTube Live</strong>
@@ -141,7 +146,6 @@
                         </div>
                     </div>
 
-                    <!-- TWITCH -->
                     <div class="social-row">
                         <div class="social-header">
                             <strong>👾 Twitch TV</strong>
@@ -154,7 +158,6 @@
                         </div>
                     </div>
 
-                    <!-- INSTAGRAM -->
                     <div class="social-row">
                         <div class="social-header">
                             <strong>📸 Instagram Live</strong>
@@ -169,7 +172,6 @@
             </div>
         </div>
 
-        <!-- 4. CONFIGURATION -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>Configuration Radio</h2>
@@ -181,7 +183,6 @@
         </div>
     </div>
 
-    <!-- CONNEXION / INSCRIPTION -->
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
             <h2 id="authTitle">Création de Compte</h2>
@@ -262,14 +263,17 @@
             const logs = document.getElementById('studioLogs');
             const btn = document.getElementById('streamButton');
             const statusTxt = document.getElementById('studioStatusTxt');
+            const wantsMonitor = document.getElementById('monitorToggle').checked;
             
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
                 globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 const source = audioContext.createMediaStreamSource(globalStream);
                 
-                // RETOUR CASQUE ACTIVÉ ICI :
-                source.connect(audioContext.destination);
+                // Active le retour audio uniquement si la case est cochée !
+                if (wantsMonitor) {
+                    source.connect(audioContext.destination);
+                }
 
                 processor = audioContext.createScriptProcessor(4096, 1, 1);
                 source.connect(processor);
@@ -291,7 +295,7 @@
                 btn.innerText = "🛑 Arrêter le direct";
                 btn.className = "btn btn-stop";
                 statusTxt.innerText = "🔴 VOUS ÊTES EN DIRECT";
-                logs.innerHTML = "🎙️ Diffusion active ! Retour casque branché (mets bien ton casque !).";
+                logs.innerHTML = wantsMonitor ? "🎙️ Diffusion active avec retour casque." : "🎙️ Diffusion active (sans retour haut-parleur).";
             } catch (err) { 
                 isStreaming = false;
                 btn.innerText = "⚠️ Erreur de connexion";
