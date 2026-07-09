@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfr Studio - Connexion Serveur</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #0f0f1a;
+            color: #ffffff;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+        }
+        .studio-card {
+            background-color: #161626;
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #34345c;
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #34345c;
+        }
+        .indicator {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #57606f;
+        }
+        .streaming { background-color: #2ed573; animation: blink 1s infinite alternate; }
+        .error { background-color: #ff4757; }
+        
+        .server-config {
+            background-color: #1e1e36;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 90%;
+            padding: 10px;
+            margin-top: 5px;
+            background-color: #0f0f1a;
+            border: 1px solid #34345c;
+            color: white;
+            border-radius: 5px;
+        }
+        
+        .btn-stream {
+            width: 100%;
+            padding: 15px;
+            background-color: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-stream.active { background-color: #2ed573; }
+        
+        .log-box {
+            background-color: #000000;
+            color: #00ffcc;
+            font-family: monospace;
+            padding: 15px;
+            height: 120px;
+            overflow-y: auto;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+        @keyframes blink {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="studio-card">
+    <div class="status-bar">
+        <h2>🎙️ Transfr Live Studio</h2>
+        <div id="statusIndicator" class="indicator">HORS LIGNE</div>
+    </div>
+
+    <div class="server-config">
+        <label style="font-size: 14px; color: #a4b0be;">Adresse du serveur d'antenne (WebSocket) :</label>
+        <input type="text" id="serverUrl" value="ws://localhost:8080">
+    </div>
+
+    <button id="streamBtn" class="btn-stream" onclick="toggleStreaming()">DÉMARRER LE DIRECT</button>
+
+    <div class="log-box" id="logBox">
+        [Système] Prêt à envoyer le flux audio...<br>
+    </div>
+</div>
+
+<script>
+    let isStreaming = false;
+    let audioContext;
+    let mediaStream;
+    let processor;
+    let websocket;
+
+    function addLog(message) {
+        const logBox = document.getElementById('logBox');
+        logBox.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}<br>`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    async function toggleStreaming() {
+        const btn = document.getElementById('streamBtn');
+        const indicator = document.getElementById('statusIndicator');
+        const serverUrl = document.getElementById('serverUrl').value;
+
+        if (!isStreaming) {
+            try {
+                addLog("Demande d'accès au micro...");
+                // 1. On demande l'accès au micro de l'utilisateur
+                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                addLog("Micro branché avec succès !");
+
+                // 2. Connexion au serveur via WebSocket
+                addLog(`Connexion au serveur : ${serverUrl}...`);
+                websocket = new WebSocket(serverUrl);
+
+                websocket.onopen = () => {
+                    addLog("Connecté au serveur ! Envoi du son en cours...");
+                    isStreaming = true;
+                    btn.textContent = "ARRÊTER LE DIRECT";
+                    btn.classList.add('active');
+                    indicator.textContent = "EN DIRECT";
+                    indicator.className = "indicator streaming";
+                    
+                    // 3. Commencer à capturer et envoyer le son
+                    startAudioProcessing();
+                };
+
+                websocket.onerror = (err) => {
+                    addLog("Erreur : Impossible de joindre le serveur. (Est-il allumé ?)");
+                    stopStreaming();
+                };
+
+            } catch (error) {
+                addLog("Erreur d'accès au micro : " + error.message);
+                indicator.textContent = "ERREUR MICRO";
+                indicator.className = "indicator error";
+            }
+        } else {
+            addLog("Arrêt volontaire du direct.");
+            stopStreaming();
+        }
+    }
+
+    function startAudioProcessing() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioContext.createMediaStreamSource(mediaStream);
+        
+        // Créer un processeur pour découper le son en petits morceaux (buffers)
+        processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+
+        // Dès qu'un morceau de son est capté, on l'envoie au serveur
+        processor.onaudioprocess = (e) => {
+            if (!isStreaming || websocket.readyState !== WebSocket.OPEN) return;
+            
+            const audioData = e.inputBuffer.getChannelData(0);
+            // On convertit le son en Float32Array (format brut) pour l'envoyer par le réseau
+            websocket.send(audioData.buffer);
+        };
+    }
+
+    function stopStreaming() {
+        isStreaming = false;
+        const btn = document.getElementById('streamBtn');
+        const indicator = document.getElementById('statusIndicator');
+
+        btn.textContent = "DÉMARRER LE DIRECT";
+        btn.classList.remove('active');
+        indicator.textContent = "HORS LIGNE";
+        indicator.className = "indicator";
+
+        // Couper le micro
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+        }
+        // Couper le traitement audio
+        if (processor) processor.disconnect();
+        if (audioContext) audioContext.close();
+        // Fermer la connexion serveur
+        if (websocket) websocket.close();
+    }
+</script>
+
+</body>
+</html>
