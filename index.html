@@ -21,9 +21,9 @@
         .auth-buttons button { background-color: #ff4757; color: white; border: none; padding: 10px 20px; margin-left: 10px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .auth-buttons button.secondary { background-color: transparent; border: 2px solid #ffffff; }
         
-        .tab-content { display: none; width: 100%; max-width: 600px; }
+        .tab-content { display: none; width: 100%; max-width: 650px; }
         .tab-content.active { display: block; }
-        .card { background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); text-align: center; width: 100%; }
+        .card { background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); text-align: center; width: 100%; position: relative; }
         
         h2 { margin-bottom: 15px; font-size: 26px; color: #ff4757; }
         .subtitle { font-size: 14px; color: #a4b0be; margin-bottom: 25px; line-height: 1.5; }
@@ -31,20 +31,35 @@
         .live-dot { width: 12px; height: 12px; background-color: #2ed573; border-radius: 50%; animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         
-        .radio-avatar-preview { width: 150px; height: 150px; border-radius: 25px; background-color: rgba(255,255,255,0.05); margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed rgba(255,255,255,0.15); }
+        /* LE COMPTEUR GRAPHIQUE AVEC INFOBULLE */
+        .counter-box { width: 70px; height: 70px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; margin: 0 auto 20px auto; display: flex; align-items: flex-end; justify-content: center; padding: 6px; position: relative; cursor: pointer; }
+        .counter-bar { width: 100%; height: 10%; background: linear-gradient(to top, #ff4757, #ff6b81); border-radius: 8px; transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .counter-box::after { content: attr(data-tooltip); position: absolute; top: -35px; left: 50%; transform: translateX(-50%) scale(0.8); background: #ff4757; color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; white-space: nowrap; opacity: 0; transition: 0.2s; pointer-events: none; }
+        .counter-box:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
+
+        .radio-avatar-preview { width: 120px; height: 120px; border-radius: 25px; background-color: rgba(255,255,255,0.05); margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed rgba(255,255,255,0.15); }
         .radio-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-        .btn { background-color: #ff4757; color: white; border: none; padding: 16px 32px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 15px; }
-        .btn-stream { background-color: #1e90ff; }
+        .btn { color: white; border: none; padding: 16px 32px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 15px; }
+        .btn-listen-color { background-color: #ff4757; }
+        .btn-start { background-color: #1e90ff; }
+        .btn-stop { background-color: #ff4757; }
+        .btn-error { background-color: #ffa502; }
+        
         .log-box { background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 12px; margin-top: 25px; font-family: monospace; font-size: 13px; text-align: left; max-height: 140px; overflow-y: auto; color: #57ffb4; }
         
         label { text-align: left; display: block; font-size: 14px; color: #ff4757; font-weight: 600; margin-top: 15px; margin-bottom: 5px; }
         input[type="text"], input[type="password"] { width: 100%; padding: 14px 20px; margin: 5px 0 15px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 16px; outline: none; }
         
-        .social-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 16px; margin-bottom: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.02); }
-        input[type="checkbox"] { width: 22px; height: 22px; accent-color: #ff4757; cursor: pointer; }
+        /* CASIER DE CONFIG MULTISTREAMING */
+        .social-layout { display: flex; flex-direction: column; gap: 15px; }
+        .social-row { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 18px; text-align: left; border: 1px solid rgba(255,255,255,0.04); }
+        .social-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .help-box { background: rgba(255, 255, 255, 0.02); border-left: 3px solid #ff4757; padding: 10px 15px; border-radius: 6px; margin-top: 10px; font-size: 13px; color: #a4b0be; line-height: 1.4; }
+        .help-box a { color: #ff4757; font-weight: bold; text-decoration: none; }
+        .help-box a:hover { text-decoration: underline; }
+        input[type="checkbox"] { width: 24px; height: 24px; accent-color: #ff4757; cursor: pointer; }
         
-        /* AUTH OVERLAY */
         .auth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 8, 15, 0.95); z-index: 100; justify-content: center; align-items: center; }
         .auth-card { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 400px; text-align: center; }
     </style>
@@ -71,75 +86,71 @@
     <div class="main-content">
         <div id="tab-listen" class="tab-content active">
             <div class="card">
+                <div class="counter-box" id="userCounterBox" data-tooltip="0 utilisateur">
+                    <div class="counter-bar" id="userCounterBar"></div>
+                </div>
+
                 <div class="radio-avatar-preview">
                     <span id="noPhotoText">Pas de logo</span>
                     <img id="playerAvatarImg" src="" style="display: none;">
                 </div>
                 <h2 id="display-radio-name">Ma Radio Web</h2>
-                <div class="status">
-                    <div class="live-dot"></div> EN DIRECT : <span id="user-count" style="margin-left: 5px; margin-right: 5px;">1</span> auditeur(s)
-                </div>
-                <button class="btn" id="playButton" onclick="togglePlay()">▶ Brancher le Flux en Direct</button>
+                <div class="status"><div class="live-dot"></div> EN DIRECT</div>
+                <button class="btn btn-listen-color" id="playButton" onclick="togglePlay()">▶ Brancher le Flux en Direct</button>
             </div>
         </div>
 
         <div id="tab-studio" class="tab-content">
             <div class="card">
                 <h2>Studio Animateur Direct</h2>
-                <button class="btn btn-stream" id="streamButton" onclick="startStreaming()">🎙 Ouvrir le Micro et Diffuser</button>
-                <div class="log-box" id="studioLogs">Studio prêt. Parle dans ton micro pour envoyer le son au serveur.</div>
+                <p class="subtitle" id="studioStatusTxt">Prêt à lancer l'antenne.</p>
+                <button class="btn btn-start" id="streamButton" onclick="handleStreamToggle()">🎙️ Lancer le direct</button>
+                <div class="log-box" id="studioLogs">Studio prêt. Clique sur le bouton pour diffuser.</div>
             </div>
         </div>
 
         <div id="tab-social" class="tab-content">
             <div class="card" style="max-height: 75vh; overflow-y: auto;">
                 <h2>Diffusion Multi-Réseaux</h2>
-                <p class="subtitle">Active les réseaux où tu veux diffuser en même temps et colle tes clés de transmission.</p>
+                <p class="subtitle">Active les réseaux pour diffuser partout en même temps.</p>
                 
-                <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>🔴 YouTube Live</strong>
-                        <input type="password" id="ytKey" placeholder="Clé de flux" oninput="saveSocial()">
-                        <a href="https://www.youtube.com/live_dashboard" target="_blank" style="color: #ff4757; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Trouver ma clé de flux YouTube</a>
+                <div class="social-layout">
+                    <div class="social-row">
+                        <div class="social-header">
+                            <strong>🔴 YouTube Live</strong>
+                            <input type="checkbox" id="ytToggle" onchange="saveSocial()">
+                        </div>
+                        <input type="password" id="ytKey" placeholder="Colle ta clé de flux YouTube" oninput="saveSocial()">
+                        <div class="help-box" style="border-left-color: #ff4757;">
+                            ℹ️ Pour trouver ta clé : va dans ton Studio YouTube, commence un direct et copie la "Clé de flux". <br>
+                            <a href="https://www.youtube.com/live_dashboard" target="_blank">👉 Ouvrir la page des clés YouTube</a>
+                        </div>
                     </div>
-                    <input type="checkbox" id="ytToggle" onchange="saveSocial()">
+
+                    <div class="social-row">
+                        <div class="social-header">
+                            <strong>👾 Twitch TV</strong>
+                            <input type="checkbox" id="twitchToggle" onchange="saveSocial()">
+                        </div>
+                        <input type="password" id="twitchKey" placeholder="Colle ta clé de flux Twitch" oninput="saveSocial()">
+                        <div class="help-box" style="border-left-color: #1e90ff;">
+                            ℹ️ Pour trouver ta clé : va dans ton Tableau de bord de créateur $\rightarrow$ Paramètres $\rightarrow$ Flux. <br>
+                            <a href="https://dashboard.twitch.tv/settings/stream" target="_blank">👉 Ouvrir la page des clés Twitch</a>
+                        </div>
+                    </div>
+
+                    <div class="social-row">
+                        <div class="social-header">
+                            <strong>📸 Instagram Live</strong>
+                            <input type="checkbox" id="instaToggle" onchange="saveSocial()">
+                        </div>
+                        <input type="password" id="instaKey" placeholder="Colle ta clé de flux Instagram" oninput="saveSocial()">
+                        <div class="help-box" style="border-left-color: #ffa502;">
+                            ℹ️ Pour obtenir ta clé : utilise l'outil "Live Producer" directement depuis l'application ou le site d'Instagram.
+                        </div>
+                    </div>
                 </div>
 
-                <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>👾 Twitch TV</strong>
-                        <input type="password" id="twitchKey" placeholder="Clé de flux" oninput="saveSocial()">
-                        <a href="https://dashboard.twitch.tv/settings/stream" target="_blank" style="color: #1e90ff; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Trouver ma clé de flux Twitch</a>
-                    </div>
-                    <input type="checkbox" id="twitchToggle" onchange="saveSocial()">
-                </div>
-
-                <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>📸 Instagram Live</strong>
-                        <input type="password" id="instaKey" placeholder="Clé de flux" oninput="saveSocial()">
-                        <p style="color: #a4b0be; font-size: 13px; margin-top: 5px; margin-bottom: 5px; text-align: left;">💡 À récupérer depuis l'application Instagram (Direct $\rightarrow$ Live Producer)</p>
-                    </div>
-                    <input type="checkbox" id="instaToggle" onchange="saveSocial()">
-                </div>
-
-                <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>🎵 TikTok Live</strong>
-                        <input type="password" id="tiktokKey" placeholder="Clé de flux" oninput="saveSocial()">
-                        <a href="https://www.tiktok.com/live/creatorspace" target="_blank" style="color: #2ed573; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Ouvrir le TikTok Live Studio</a>
-                    </div>
-                    <input type="checkbox" id="tiktokToggle" onchange="saveSocial()">
-                </div>
-
-                <div class="social-row">
-                    <div style="flex:1; margin-right:10px;">
-                        <strong>📘 Facebook Live</strong>
-                        <input type="password" id="fbKey" placeholder="Clé de flux" oninput="saveSocial()">
-                        <a href="https://www.facebook.com/live/producer" target="_blank" style="color: #ffa502; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Ouvrir Facebook Live Producer</a>
-                    </div>
-                    <input type="checkbox" id="fbToggle" onchange="saveSocial()">
-                </div>
             </div>
         </div>
 
@@ -159,7 +170,7 @@
             <h2 id="authTitle">Création de Compte</h2>
             <input type="text" id="authUsername" placeholder="Choisis un pseudo">
             <input type="password" id="authPassword" placeholder="Mot de passe">
-            <button class="btn" onclick="submitAuth()">Créer mon compte & Connecter</button>
+            <button class="btn btn-listen-color" onclick="submitAuth()">Créer mon compte & Connecter</button>
             <button class="btn" style="background:#747d8c;" onclick="hideAuthPage()">Retour</button>
         </div>
     </div>
@@ -169,6 +180,7 @@
         let audioContext;
         let processor;
         let globalStream;
+        let isStreaming = false;
 
         window.onload = function() {
             const savedUser = localStorage.getItem('tf_user');
@@ -180,17 +192,13 @@
             const savedPhoto = localStorage.getItem('tf_photo');
             if (savedPhoto) { displayPhoto(savedPhoto); }
 
-            // Charger toutes les clés de réseaux
+            // Charger les clés
             document.getElementById('ytKey').value = localStorage.getItem('tf_yt_key') || '';
             document.getElementById('ytToggle').checked = localStorage.getItem('tf_yt_toggle') === 'true';
             document.getElementById('twitchKey').value = localStorage.getItem('tf_tw_key') || '';
             document.getElementById('twitchToggle').checked = localStorage.getItem('tf_tw_toggle') === 'true';
             document.getElementById('instaKey').value = localStorage.getItem('tf_ins_key') || '';
             document.getElementById('instaToggle').checked = localStorage.getItem('tf_ins_toggle') === 'true';
-            document.getElementById('tiktokKey').value = localStorage.getItem('tf_tk_key') || '';
-            document.getElementById('tiktokToggle').checked = localStorage.getItem('tf_tk_toggle') === 'true';
-            document.getElementById('fbKey').value = localStorage.getItem('tf_fb_key') || '';
-            document.getElementById('fbToggle').checked = localStorage.getItem('tf_fb_toggle') === 'true';
 
             connectServer();
         };
@@ -204,17 +212,40 @@
                 if (typeof event.data === 'string') {
                     const data = JSON.parse(event.data);
                     if (data.type === 'count') {
-                        document.getElementById('user-count').innerText = data.value;
+                        updateVisualCounter(data.value);
                     }
                 }
-                else if (event.data instanceof ArrayBuffer && !globalStream) {
+                else if (event.data instanceof ArrayBuffer && !isStreaming) {
                     playAudioBuffer(event.data);
                 }
             };
         }
 
+        function updateVisualCounter(count) {
+            const box = document.getElementById('userCounterBox');
+            const bar = document.getElementById('userCounterBar');
+            box.setAttribute('data-tooltip', count + " utilisateur(s)");
+            
+            let fillHeight = 10;
+            if (count === 1) fillHeight = 45;
+            else if (count >= 2) fillHeight = 100;
+            
+            bar.style.height = fillHeight + '%';
+        }
+
+        function handleStreamToggle() {
+            if (!isStreaming) {
+                startStreaming();
+            } else {
+                stopStreaming();
+            }
+        }
+
         async function startStreaming() {
             const logs = document.getElementById('studioLogs');
+            const btn = document.getElementById('streamButton');
+            const statusTxt = document.getElementById('studioStatusTxt');
+            
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
                 globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -225,46 +256,78 @@
                 processor.connect(audioContext.destination);
 
                 processor.onaudioprocess = (e) => {
+                    if (!isStreaming) return;
                     const inputData = e.inputBuffer.getChannelData(0);
                     const audioBuffer = new Int16Array(inputData.length);
                     for (let i = 0; i < inputData.length; i++) {
                         audioBuffer[i] = Math.min(1, Math.max(-1, inputData[i])) * 0x7FFF;
                     }
-                    if (socket.readyState === WebSocket.OPEN) {
+                    if (socket && socket.readyState === WebSocket.OPEN) {
                         socket.send(audioBuffer.buffer);
                     }
                 };
-                logs.innerHTML = "🎙️ EN DIRECT ! Ton micro est envoyé au serveur pour tous les auditeurs !";
-            } catch (err) { logs.innerHTML = "Erreur micro : " + err.message; }
+
+                isStreaming = true;
+                btn.innerText = "🛑 Arrêter le direct";
+                btn.className = "btn btn-stop";
+                statusTxt.innerText = "🔴 VOUS ÊTES EN DIRECT";
+                logs.innerHTML = "🎙️ Diffusion active ! Le son de ton micro est envoyé au serveur.";
+            } catch (err) { 
+                isStreaming = false;
+                btn.innerText = "⚠️ Erreur de connexion";
+                btn.className = "btn btn-error";
+                statusTxt.innerText = "Impossible d'accéder au micro.";
+                logs.innerHTML = "Erreur micro : " + err.message; 
+            }
+        }
+
+        function stopStreaming() {
+            isStreaming = false;
+            if (globalStream) {
+                globalStream.getTracks().forEach(track => track.stop());
+            }
+            if (processor) processor.disconnect();
+            
+            const btn = document.getElementById('streamButton');
+            btn.innerText = "🎙️ Lancer le direct";
+            btn.className = "btn btn-start";
+            document.getElementById('studioStatusTxt').innerText = "Direct arrêté.";
+            document.getElementById('studioLogs').innerHTML = "Studio prêt. Clique pour relancer.";
         }
 
         let nextStartTime = 0;
         function playAudioBuffer(arrayBuffer) {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-            
-            const int16Array = new Int16Array(arrayBuffer);
-            const float32Array = new Float32Array(int16Array.length);
-            for (let i = 0; i < int16Array.length; i++) {
-                float32Array[i] = int16Array[i] / 0x7FFF;
-            }
+            try {
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+                if (audioContext.state === 'suspended') return; 
 
-            const buffer = audioContext.createBuffer(1, float32Array.length, 16000);
-            buffer.getChannelData(0).set(float32Array);
+                const int16Array = new Int16Array(arrayBuffer);
+                const float32Array = new Float32Array(int16Array.length);
+                for (let i = 0; i < int16Array.length; i++) {
+                    float32Array[i] = int16Array[i] / 0x7FFF;
+                }
 
-            const source = audioContext.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioContext.destination);
+                const buffer = audioContext.createBuffer(1, float32Array.length, 16000);
+                buffer.getChannelData(0).set(float32Array);
 
-            if (nextStartTime < audioContext.currentTime) {
-                nextStartTime = audioContext.currentTime + 0.05;
-            }
-            source.start(nextStartTime);
-            nextStartTime += buffer.duration;
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+
+                if (nextStartTime < audioContext.currentTime) {
+                    nextStartTime = audioContext.currentTime + 0.05;
+                }
+                source.start(nextStartTime);
+                nextStartTime += buffer.duration;
+            } catch(e){}
         }
 
         function togglePlay() {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
-            document.getElementById('playButton').innerText = "🔊 Écoute en cours...";
+            audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+            if(audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            document.getElementById('playButton').innerText = "🔊 Écoute du Flux active !";
         }
 
         function showAuthPage(type) { document.getElementById('authOverlay').style.display = 'flex'; }
@@ -301,7 +364,6 @@
         }
         
         function displayPhoto(data) { document.getElementById('noPhotoText').style.display = 'none'; const img = document.getElementById('playerAvatarImg'); img.src = data; img.style.display = 'block'; }
-        
         function switchTab(id, btn) { 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
@@ -316,10 +378,6 @@
             localStorage.setItem('tf_tw_toggle', document.getElementById('twitchToggle').checked);
             localStorage.setItem('tf_ins_key', document.getElementById('instaKey').value);
             localStorage.setItem('tf_ins_toggle', document.getElementById('instaToggle').checked);
-            localStorage.setItem('tf_tk_key', document.getElementById('tiktokKey').value);
-            localStorage.setItem('tf_tk_toggle', document.getElementById('tiktokToggle').checked);
-            localStorage.setItem('tf_fb_key', document.getElementById('fbKey').value);
-            localStorage.setItem('tf_fb_toggle', document.getElementById('fbToggle').checked);
         }
     </script>
 </body>
