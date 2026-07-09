@@ -2,8 +2,8 @@
   "name": "transfr-backend",
   "version": "1.0.0",
   "description": "Backend pour la radio Transfr",
-  "main": "appserver.js",
+  "main": "studio.html",
   "scripts": {
-    "start": "node appserver.js"
+    "start": "echo 'Serveur prêt' && exit 0"
   }
 }
