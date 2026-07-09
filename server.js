@@ -7,8 +7,10 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Distribue les fichiers du dossier public (ton index.html)
-app.use(express.static(path.join(__dirname, 'public')));
+// ASTUCE : On dit au serveur de chercher index.html directement à la racine, sans dossier public !
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 let radios = {}; 
 let userCount = 0;
@@ -16,20 +18,17 @@ let userCount = 0;
 wss.on('connection', (ws) => {
     userCount++;
     
-    // Envoie la liste des radios et le nombre de connectés dès qu'un appareil arrive
     ws.send(JSON.stringify({ type: 'init', userCount: userCount, radios: radios }));
     broadcast(JSON.stringify({ type: 'count', value: userCount }));
 
     ws.on('message', (message, isBinary) => {
         if (isBinary) {
-            // TRANSMISSION AUDIO : Envoie le son à tout le monde
             wss.clients.forEach((client) => {
                 if (client !== ws && client.readyState === WebSocket.OPEN) {
                     client.send(message, { binary: true });
                 }
             });
         } else {
-            // TRANSMISSION TEXTE : Gestion du nom et du logo
             try {
                 const data = JSON.parse(message);
                 if (data.type === 'updateRadio') {
@@ -61,8 +60,7 @@ function broadcast(data) {
     });
 }
 
-// Le port s'adapte tout seul à Internet (process.env.PORT) ou utilise 3000 en local
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Transfr en ligne !`);
+    console.log(`🚀 Transfr branché en direct !`);
 });
