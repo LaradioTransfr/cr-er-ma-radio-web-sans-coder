@@ -76,7 +76,9 @@
                     <img id="playerAvatarImg" src="" style="display: none;">
                 </div>
                 <h2 id="display-radio-name">Ma Radio Web</h2>
-                <div class="status"><div class="live-dot"></div> EN DIRECT</div>
+                <div class="status">
+                    <div class="live-dot"></div> EN DIRECT : <span id="user-count" style="margin-left: 5px; margin-right: 5px;">1</span> auditeur(s)
+                </div>
                 <button class="btn" id="playButton" onclick="togglePlay()">▶ Brancher le Flux en Direct</button>
             </div>
         </div>
@@ -98,22 +100,18 @@
                     <div style="flex:1; margin-right:10px;"><strong>🔴 YouTube Live</strong><input type="password" id="ytKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
                     <input type="checkbox" id="ytToggle" onchange="saveSocial()">
                 </div>
-
                 <div class="social-row">
                     <div style="flex:1; margin-right:10px;"><strong>👾 Twitch TV</strong><input type="password" id="twitchKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
                     <input type="checkbox" id="twitchToggle" onchange="saveSocial()">
                 </div>
-
                 <div class="social-row">
                     <div style="flex:1; margin-right:10px;"><strong>📸 Instagram Live</strong><input type="password" id="instaKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
                     <input type="checkbox" id="instaToggle" onchange="saveSocial()">
                 </div>
-
                 <div class="social-row">
                     <div style="flex:1; margin-right:10px;"><strong>🎵 TikTok Live</strong><input type="password" id="tiktokKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
                     <input type="checkbox" id="tiktokToggle" onchange="saveSocial()">
                 </div>
-
                 <div class="social-row">
                     <div style="flex:1; margin-right:10px;"><strong>📘 Facebook Live</strong><input type="password" id="fbKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
                     <input type="checkbox" id="fbToggle" onchange="saveSocial()">
@@ -179,7 +177,15 @@
             socket.binaryType = 'arraybuffer';
 
             socket.onmessage = async (event) => {
-                if (event.data instanceof ArrayBuffer && !globalStream) {
+                // Si on reçoit du texte (JSON), c'est le compteur d'auditeurs !
+                if (typeof event.data === 'string') {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'count') {
+                        document.getElementById('user-count').innerText = data.value;
+                    }
+                }
+                // Si c'est du binaire, c'est le flux du micro
+                else if (event.data instanceof ArrayBuffer && !globalStream) {
                     playAudioBuffer(event.data);
                 }
             };
@@ -273,6 +279,7 @@
         }
         
         function displayPhoto(data) { document.getElementById('noPhotoText').style.display = 'none'; const img = document.getElementById('playerAvatarImg'); img.src = data; img.style.display = 'block'; }
+        
         function switchTab(id, btn) { 
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
             document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
