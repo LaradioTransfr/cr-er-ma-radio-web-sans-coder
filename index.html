@@ -3,208 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfr Studio - Connexion Serveur</title>
+    <title>Transfr - Ta Plateforme Radio</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: #0f0f1a;
+            background: linear-gradient(135deg, #1e1e2f, #11111b);
             color: #ffffff;
-            padding: 30px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-        .studio-card {
-            background-color: #161626;
-            border-radius: 12px;
-            padding: 30px;
+
+        header {
             width: 100%;
-            max-width: 550px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #34345c;
-        }
-        .status-bar {
+            padding: 20px 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #34345c;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
-        .indicator {
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 14px;
+
+        .logo {
+            font-size: 24px;
             font-weight: bold;
-            background-color: #57606f;
+            color: #ff4757;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        .streaming { background-color: #2ed573; animation: blink 1s infinite alternate; }
-        .error { background-color: #ff4757; }
-        
-        .server-config {
-            background-color: #1e1e36;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        input {
-            width: 90%;
-            padding: 10px;
-            margin-top: 5px;
-            background-color: #0f0f1a;
-            border: 1px solid #34345c;
-            color: white;
-            border-radius: 5px;
-        }
-        
-        .btn-stream {
-            width: 100%;
-            padding: 15px;
+
+        .auth-buttons button {
             background-color: #ff4757;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: 0.2s;
+            font-weight: bold;
+            transition: 0.3s;
         }
-        .btn-stream.active { background-color: #2ed573; }
-        
-        .log-box {
-            background-color: #000000;
-            color: #00ffcc;
-            font-family: monospace;
-            padding: 15px;
-            height: 120px;
-            overflow-y: auto;
-            border-radius: 6px;
-            margin-top: 20px;
-            font-size: 13px;
+
+        .auth-buttons button.secondary {
+            background-color: transparent;
+            border: 2px solid #ffffff;
         }
+
+        .auth-buttons button:hover {
+            transform: scale(1.05);
+            background-color: #ff6b81;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .player-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            width: 350px;
+        }
+
+        .station-name {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            color: #2ed573;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #2ed573;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+
         @keyframes blink {
-            from { opacity: 0.7; }
-            to { opacity: 1; }
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
+        }
+
+        .counter {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .play-btn {
+            background-color: #ff4757;
+            border: none;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(2ff, 71, 87, 0.4);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            background-color: #ff6b81;
         }
     </style>
 </head>
 <body>
 
-<div class="studio-card">
-    <div class="status-bar">
-        <h2>🎙️ Transfr Live Studio</h2>
-        <div id="statusIndicator" class="indicator">HORS LIGNE</div>
-    </div>
+    <header>
+        <div class="logo">Transfr</div>
+        <div class="auth-buttons">
+            <button class="secondary" onclick="alert('Fenêtre de connexion bientôt disponible !')">Connexion</button>
+            <button onclick="alert('Fenêtre d\'inscription bientôt disponible !')">Créer un compte</button>
+        </div>
+    </header>
 
-    <div class="server-config">
-        <label style="font-size: 14px; color: #a4b0be;">Adresse du serveur d'antenne (WebSocket) :</label>
-        <input type="text" id="serverUrl" value="ws://localhost:8080">
-    </div>
-
-    <button id="streamBtn" class="btn-stream" onclick="toggleStreaming()">DÉMARRER LE DIRECT</button>
-
-    <div class="log-box" id="logBox">
-        [Système] Prêt à envoyer le flux audio...<br>
-    </div>
-</div>
-
-<script>
-    let isStreaming = false;
-    let audioContext;
-    let mediaStream;
-    let processor;
-    let websocket;
-
-    function addLog(message) {
-        const logBox = document.getElementById('logBox');
-        logBox.innerHTML += `[${new Date().toLocaleTimeString()}] ${message}<br>`;
-        logBox.scrollTop = logBox.scrollHeight;
-    }
-
-    async function toggleStreaming() {
-        const btn = document.getElementById('streamBtn');
-        const indicator = document.getElementById('statusIndicator');
-        const serverUrl = document.getElementById('serverUrl').value;
-
-        if (!isStreaming) {
-            try {
-                addLog("Demande d'accès au micro...");
-                // 1. On demande l'accès au micro de l'utilisateur
-                mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                addLog("Micro branché avec succès !");
-
-                // 2. Connexion au serveur via WebSocket
-                addLog(`Connexion au serveur : ${serverUrl}...`);
-                websocket = new WebSocket(serverUrl);
-
-                websocket.onopen = () => {
-                    addLog("Connecté au serveur ! Envoi du son en cours...");
-                    isStreaming = true;
-                    btn.textContent = "ARRÊTER LE DIRECT";
-                    btn.classList.add('active');
-                    indicator.textContent = "EN DIRECT";
-                    indicator.className = "indicator streaming";
-                    
-                    // 3. Commencer à capturer et envoyer le son
-                    startAudioProcessing();
-                };
-
-                websocket.onerror = (err) => {
-                    addLog("Erreur : Impossible de joindre le serveur. (Est-il allumé ?)");
-                    stopStreaming();
-                };
-
-            } catch (error) {
-                addLog("Erreur d'accès au micro : " + error.message);
-                indicator.textContent = "ERREUR MICRO";
-                indicator.className = "indicator error";
-            }
-        } else {
-            addLog("Arrêt volontaire du direct.");
-            stopStreaming();
-        }
-    }
-
-    function startAudioProcessing() {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const source = audioContext.createMediaStreamSource(mediaStream);
-        
-        // Créer un processeur pour découper le son en petits morceaux (buffers)
-        processor = audioContext.createScriptProcessor(4096, 1, 1);
-
-        source.connect(processor);
-        processor.connect(audioContext.destination);
-
-        // Dès qu'un morceau de son est capté, on l'envoie au serveur
-        processor.onaudioprocess = (e) => {
-            if (!isStreaming || websocket.readyState !== WebSocket.OPEN) return;
+    <div class="main-container">
+        <div class="player-card">
+            <div class="station-name">Ma Super Radio</div>
+            <div class="status"><div class="live-dot"></div> EN DIRECT</div>
             
-            const audioData = e.inputBuffer.getChannelData(0);
-            // On convertit le son en Float32Array (format brut) pour l'envoyer par le réseau
-            websocket.send(audioData.buffer);
-        };
-    }
+            <div class="counter">👥 <span id="listener-count">0</span> auditeurs connectés</div>
+            
+            <br>
+            <button class="play-btn" id="playButton" onclick="togglePlay()">▶</button>
+        </div>
+    </div>
 
-    function stopStreaming() {
-        isStreaming = false;
-        const btn = document.getElementById('streamBtn');
-        const indicator = document.getElementById('statusIndicator');
+    <script>
+        let isPlaying = false;
+        const playButton = document.getElementById('playButton');
 
-        btn.textContent = "DÉMARRER LE DIRECT";
-        btn.classList.remove('active');
-        indicator.textContent = "HORS LIGNE";
-        indicator.className = "indicator";
-
-        // Couper le micro
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            if(isPlaying) {
+                playButton.innerText = "⏸";
+                // Ici on ajoutera le lien du flux audio de la radio
+            } else {
+                playButton.innerText = "▶";
+            }
         }
-        // Couper le traitement audio
-        if (processor) processor.disconnect();
-        if (audioContext) audioContext.close();
-        // Fermer la connexion serveur
-        if (websocket) websocket.close();
-    }
-</script>
+    </script>
 
 </body>
 </html>
