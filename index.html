@@ -94,26 +94,50 @@
         <div id="tab-social" class="tab-content">
             <div class="card" style="max-height: 75vh; overflow-y: auto;">
                 <h2>Diffusion Multi-Réseaux</h2>
-                <p class="subtitle">Active les réseaux où tu veux diffuser en même temps.</p>
+                <p class="subtitle">Active les réseaux où tu veux diffuser en même temps et colle tes clés de transmission.</p>
                 
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;"><strong>🔴 YouTube Live</strong><input type="password" id="ytKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <div style="flex:1; margin-right:10px;">
+                        <strong>🔴 YouTube Live</strong>
+                        <input type="password" id="ytKey" placeholder="Clé de flux" oninput="saveSocial()">
+                        <a href="https://www.youtube.com/live_dashboard" target="_blank" style="color: #ff4757; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Trouver ma clé de flux YouTube</a>
+                    </div>
                     <input type="checkbox" id="ytToggle" onchange="saveSocial()">
                 </div>
+
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;"><strong>👾 Twitch TV</strong><input type="password" id="twitchKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <div style="flex:1; margin-right:10px;">
+                        <strong>👾 Twitch TV</strong>
+                        <input type="password" id="twitchKey" placeholder="Clé de flux" oninput="saveSocial()">
+                        <a href="https://dashboard.twitch.tv/settings/stream" target="_blank" style="color: #1e90ff; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Trouver ma clé de flux Twitch</a>
+                    </div>
                     <input type="checkbox" id="twitchToggle" onchange="saveSocial()">
                 </div>
+
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;"><strong>📸 Instagram Live</strong><input type="password" id="instaKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <div style="flex:1; margin-right:10px;">
+                        <strong>📸 Instagram Live</strong>
+                        <input type="password" id="instaKey" placeholder="Clé de flux" oninput="saveSocial()">
+                        <p style="color: #a4b0be; font-size: 13px; margin-top: 5px; margin-bottom: 5px; text-align: left;">💡 À récupérer depuis l'application Instagram (Direct $\rightarrow$ Live Producer)</p>
+                    </div>
                     <input type="checkbox" id="instaToggle" onchange="saveSocial()">
                 </div>
+
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;"><strong>🎵 TikTok Live</strong><input type="password" id="tiktokKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <div style="flex:1; margin-right:10px;">
+                        <strong>🎵 TikTok Live</strong>
+                        <input type="password" id="tiktokKey" placeholder="Clé de flux" oninput="saveSocial()">
+                        <a href="https://www.tiktok.com/live/creatorspace" target="_blank" style="color: #2ed573; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Ouvrir le TikTok Live Studio</a>
+                    </div>
                     <input type="checkbox" id="tiktokToggle" onchange="saveSocial()">
                 </div>
+
                 <div class="social-row">
-                    <div style="flex:1; margin-right:10px;"><strong>📘 Facebook Live</strong><input type="password" id="fbKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <div style="flex:1; margin-right:10px;">
+                        <strong>📘 Facebook Live</strong>
+                        <input type="password" id="fbKey" placeholder="Clé de flux" oninput="saveSocial()">
+                        <a href="https://www.facebook.com/live/producer" target="_blank" style="color: #ffa502; font-size: 13px; text-decoration: none; display: block; margin-top: 5px; margin-bottom: 5px; text-align: left; font-weight: bold;">👉 Ouvrir Facebook Live Producer</a>
+                    </div>
                     <input type="checkbox" id="fbToggle" onchange="saveSocial()">
                 </div>
             </div>
@@ -177,14 +201,12 @@
             socket.binaryType = 'arraybuffer';
 
             socket.onmessage = async (event) => {
-                // Si on reçoit du texte (JSON), c'est le compteur d'auditeurs !
                 if (typeof event.data === 'string') {
                     const data = JSON.parse(event.data);
                     if (data.type === 'count') {
                         document.getElementById('user-count').innerText = data.value;
                     }
                 }
-                // Si c'est du binaire, c'est le flux du micro
                 else if (event.data instanceof ArrayBuffer && !globalStream) {
                     playAudioBuffer(event.data);
                 }
