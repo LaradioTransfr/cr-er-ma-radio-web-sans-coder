@@ -1,4 +1,3 @@
-// server.js - Le Serveur Pont Audio Transfr avec Gestion des Rôles
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -8,62 +7,59 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const PORT = process.env.PORT || 3000;
+// Sert les fichiers statiques (comme index.html)
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(express.static(path.join(__dirname, '')));
-
-// Fonction pour envoyer le vrai nombre d'auditeurs connectés à tout le monde
-function broadcastUserCount() {
-    const countData = JSON.stringify({ type: 'count', value: wss.clients.size });
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(countData);
-        }
-    });
-}
+// Compteur d'utilisateurs connectés
+let userCount = 0;
 
 wss.on('connection', (ws) => {
-    console.log('👥 Un utilisateur s’est connecté à Transfr');
-    broadcastUserCount();
+    userCount++;
+    console.log(`➕ Un utilisateur s'est connecté. Total : ${userCount}`);
+    
+    // On envoie le nouveau compte à tout le monde
+    broadcast(JSON.stringify({ type: 'count', value: userCount }));
 
-    // Par défaut, chaque nouvelle connexion est un auditeur
-    ws.isAnimateur = false;
-
-    ws.on('message', (message) => {
-        // 1. Si le message est du texte (JSON)
-        if (typeof message === 'string') {
-            try {
-                const data = JSON.parse(message);
-                if (data.type === 'setRole' && data.role === 'animateur') {
-                    ws.isAnimateur = true;
-                    console.log('🎙️ Un utilisateur a pris le contrôle du Micro Animateur !');
-                }
-            } catch (e) {
-                // Pas du JSON valide, on ignore
-            }
-            return;
-        }
-
-        // 2. Si c'est du son binaire, et que ça vient bien de l'animateur
-        if (ws.isAnimateur) {
+    // Quand le serveur reçoit un message
+    ws.on('message', (message, isBinary) => {
+        
+        if (isBinary) {
+            // C'EST DU SON ! 
+            // On le renvoie immédiatement à TOUS les autres utilisateurs connectés
             wss.clients.forEach((client) => {
-                // On envoie le son UNIQUEMENT aux auditeurs (pas à l'animateur lui-même)
-                if (client !== ws && client.readyState === WebSocket.OPEN && !client.isAnimateur) {
-                    client.send(message);
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(message, { binary: true });
                 }
             });
+        } else {
+            // C'est du texte (par exemple un message de configuration ou autre)
+            try {
+                const data = JSON.parse(message);
+                // Tu pourras ajouter d'autres gestions de données texte ici si besoin
+            } catch (e) {
+                console.log("Texte reçu inconnu :", message);
+            }
         }
     });
 
     ws.on('close', () => {
-        console.log('🏃 Un utilisateur a quitté la page');
-        broadcastUserCount();
+        userCount--;
+        console.log(`❌ Un utilisateur s'est déconnecté. Total : ${userCount}`);
+        broadcast(JSON.stringify({ type: 'count', value: userCount }));
     });
 });
 
+// Fonction pratique pour envoyer un message texte à tout le monde
+function broadcast(data) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(data);
+        }
+    });
+}
+
+// Lancement du serveur sur le port 3000 (ou celui de ton choix)
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`\n======================================================`);
-    console.log(`🚀 SERVEUR TRANSFR PRÊT SUR LE PORT ${PORT} 🚀`);
-    console.log(`🔊 ROUTAGE AUDIO INNÉ : DU MICRO VERS LES AUDITEURS`);
-    console.log(`======================================================\n`);
+    console.log(`🚀 Serveur Transfr en ligne sur http://localhost:${PORT}`);
 });
