@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfr - Studio & Radio</title>
+    <title>Transfr - Radio Platform</title>
     <style>
         * {
             margin: 0;
@@ -16,28 +16,77 @@
             background: linear-gradient(135deg, #1e1e2f, #11111b);
             color: #ffffff;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             min-height: 100vh;
-            padding-bottom: 50px;
         }
 
-        header {
-            width: 100%;
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: rgba(0, 0, 0, 0.3);
+        /* BARRE LATÉRALE (SIDEBAR) SUR LE CÔTÉ */
+        .sidebar {
+            width: 280px;
+            background-color: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
         }
 
         .logo {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
             color: #ff4757;
             text-transform: uppercase;
             letter-spacing: 2px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .menu-btn {
+            background: transparent;
+            color: #a4b0be;
+            border: none;
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-btn:hover, .menu-btn.active {
+            background-color: #ff4757;
+            color: white;
+        }
+
+        .menu-btn.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .menu-btn.locked:hover {
+            background: transparent;
+            color: #a4b0be;
+        }
+
+        /* ZONE DE CONTENU PRINCIPAL */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 40px;
         }
 
         .auth-buttons button {
@@ -59,17 +108,17 @@
 
         .auth-buttons button:hover {
             transform: scale(1.05);
-            background-color: #ff6b81;
         }
 
-        .main-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 40px;
-            padding: 40px;
+        /* LES ONGLETS (CACHÉS PAR DÉFAUT SAUF L'ACTIF) */
+        .tab-content {
+            display: none;
             width: 100%;
-            max-width: 1200px;
+            max-width: 500px;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .card {
@@ -79,8 +128,8 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(4px);
-            width: 400px;
             text-align: center;
+            width: 100%;
         }
 
         h2 {
@@ -107,11 +156,7 @@
             animation: blink 1.5s infinite;
         }
 
-        @keyframes blink {
-            0% { opacity: 0.2; }
-            50% { opacity: 1; }
-            100% { opacity: 0.2; }
-        }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
 
         .counter {
             background: rgba(0, 0, 0, 0.2);
@@ -132,21 +177,13 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
-            margin-top: 15px;
             width: 100%;
+            margin-top: 15px;
         }
 
-        .btn:hover {
-            transform: scale(1.02);
-            background-color: #ff6b81;
-        }
-
-        .btn-stream {
-            background-color: #1e90ff;
-        }
-        .btn-stream:hover {
-            background-color: #54a0ff;
-        }
+        .btn:hover { background-color: #ff6b81; }
+        .btn-stream { background-color: #1e90ff; }
+        .btn-stream:hover { background-color: #54a0ff; }
 
         .log-box {
             background: rgba(0, 0, 0, 0.4);
@@ -161,86 +198,92 @@
             color: #a4b0be;
         }
 
-        #user-welcome {
-            font-weight: bold;
-            color: #2ed573;
-            margin-right: 15px;
+        input {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
 
-    <header>
+    <div class="sidebar">
         <div class="logo">Transfr</div>
-        <div class="auth-buttons" id="auth-section">
-            <span id="user-welcome" style="display: none;"></span>
-            <button class="secondary" id="loginBtn" onclick="openAuth('login')">Connexion</button>
-            <button id="registerBtn" onclick="openAuth('register')">Créer un compte</button>
-        </div>
-    </header>
+        <button class="menu-btn active" onclick="switchTab('tab-listen', this)">📻 Écouter la Radio</button>
+        <button class="menu-btn locked" id="studio-menu-btn" onclick="switchTab('tab-studio', this)" disabled>🎙 Mon Studio (Privé)</button>
+        <button class="menu-btn" onclick="switchTab('tab-settings', this)">⚙️ Configuration</button>
+    </div>
 
-    <div class="main-container">
+    <div class="main-content">
+        <header>
+            <div class="auth-buttons" id="auth-section">
+                <span id="user-welcome" style="display: none; color: #2ed573; margin-right: 15px; font-weight: bold;"></span>
+                <button class="secondary" id="loginBtn" onclick="openAuth('login')">Connexion</button>
+                <button id="registerBtn" onclick="openAuth('register')">Créer un compte</button>
+            </div>
+        </header>
 
-        <div class="card">
-            <h2>Côté Auditeur</h2>
-            <div class="status"><div class="live-dot"></div> EN DIRECT</div>
-            
-            <div class="counter">👥 <span id="listener-count">0</span> auditeurs connectés</div>
-            
-            <button class="btn" id="playButton" onclick="togglePlay()">▶ Lancer la Radio</button>
-        </div>
-
-        <div class="card">
-            <h2>Côté Studio (Animateur)</h2>
-            <p style="font-size: 14px; color: #a4b0be; margin-bottom: 15px;">Clique ici pour brancher ton micro et envoyer ta voix sur le serveur.</p>
-            
-            <button class="btn btn-stream" id="streamButton" onclick="startStreaming()">🎙 Activer le Micro</button>
-            
-            <div class="log-box" id="studioLogs">
-                Studio prêt. En attente du micro...
+        <div id="tab-listen" class="tab-content active">
+            <div class="card">
+                <h2 id="display-radio-name">Ma Super Radio</h2>
+                <div class="status"><div class="live-dot"></div> EN DIRECT</div>
+                <div class="counter">👥 <span id="listener-count">0</span> auditeurs connectés</div>
+                <button class="btn" id="playButton" onclick="togglePlay()">▶ Lancer la Radio</button>
             </div>
         </div>
 
+        <div id="tab-studio" class="tab-content">
+            <div class="card">
+                <h2>Studio Animateur</h2>
+                <p style="font-size: 14px; color: #a4b0be; margin-bottom: 15px;">Tu es connecté. Tu peux maintenant envoyer ton flux.</p>
+                <button class="btn btn-stream" id="streamButton" onclick="startStreaming()">🎙 Activer le Micro</button>
+                <div class="log-box" id="studioLogs">Studio prêt.</div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <h2>Paramètres Radio</h2>
+                <label style="text-align: left; display: block; font-size: 14px; color: #a4b0be;">Nom de ta station de radio :</label>
+                <input type="text" id="radioNameInput" value="Transfr On Air" oninput="updateRadioName()">
+                <p style="font-size: 12px; color: #2ed573; margin-top: 10px;">Changement appliqué directement !</p>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- CONNEXION TEMPS RÉEL (WEBSOCKET) POUR LE COMPTEUR ---
-        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-        const wsUrl = protocol + window.location.host;
-        let socket;
+        let isLoggedIn = false;
 
-        function connectWebSocket() {
-            socket = new WebSocket(wsUrl);
-
-            socket.onopen = () => {
-                addLog("Système : Connecté au serveur de statistiques.");
-            };
-
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                if (data.type === 'COUNTER_UPDATE') {
-                    // MISE À JOUR DU VRAI COMPTEUR
-                    document.getElementById('listener-count').innerText = data.count;
-                }
-            };
-
-            socket.onclose = () => {
-                setTimeout(connectWebSocket, 3000); // Reconnexion automatique si ça coupe
-            };
+        // CHANGER D'ONGLET
+        function switchTab(tabId, button) {
+            if (button.classList.contains('locked')) {
+                alert("🔒 Accès refusé : Tu dois d'abord te connecter à ton compte pour accéder au Studio !");
+                return;
+            }
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            button.classList.add('active');
         }
 
-        // Lancer la connexion au compteur dès le démarrage
-        connectWebSocket();
+        function updateRadioName() {
+            const name = document.getElementById('radioNameInput').value;
+            document.getElementById('display-radio-name').innerText = name;
+        }
 
-        // --- LOGIQUE GESTION DES COMPTES (FONCTIONNEL) ---
+        // --- GESTION DES COMPTES & DÉVERROUILLAGE ---
         async function openAuth(type) {
             const username = prompt("Entre ton pseudo :");
             const password = prompt("Entre ton mot de passe :");
-
             if (!username || !password) return;
 
             const endpoint = type === 'login' ? '/api/login' : '/api/register';
-            
             try {
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -248,60 +291,62 @@
                     body: JSON.stringify({ username, password })
                 });
                 const result = await response.json();
-
                 alert(result.message);
 
                 if (result.success && type === 'login') {
+                    isLoggedIn = true;
                     document.getElementById('loginBtn').style.display = 'none';
                     document.getElementById('registerBtn').style.display = 'none';
+                    
                     const welcome = document.getElementById('user-welcome');
                     welcome.innerText = "👋 " + username;
                     welcome.style.display = 'inline';
+
+                    // DÉBLOQUER L'ONGLET STUDIO
+                    const studioBtn = document.getElementById('studio-menu-btn');
+                    studioBtn.classList.remove('locked');
+                    studioBtn.removeAttribute('disabled');
                 }
             } catch (err) {
-                alert("Erreur de connexion au serveur.");
+                alert("Erreur de connexion au serveur. Lance d'abord le serveur dans ton terminal !");
             }
         }
 
-        // --- LOGIQUE AUDITEUR ---
-        let isPlaying = false;
-        const playButton = document.getElementById('playButton');
+        // --- WEBSOCKET COMPTEUR REEL ---
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const wsUrl = protocol + window.location.host;
+        let socket;
 
+        function connectWebSocket() {
+            socket = new WebSocket(wsUrl);
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'COUNTER_UPDATE') {
+                    document.getElementById('listener-count').innerText = data.count;
+                }
+            };
+            socket.onclose = () => { setTimeout(connectWebSocket, 3000); };
+        }
+        connectWebSocket();
+
+        // --- LECTEUR AUDIO ---
+        let isPlaying = false;
         function togglePlay() {
             isPlaying = !isPlaying;
-            if(isPlaying) {
-                playButton.innerText = "⏸ Pause Radio";
-                addLog("Auditeur : Lecture du flux lancée.");
-            } else {
-                playButton.innerText = "▶ Lancer la Radio";
-                addLog("Auditeur : Flux mis en pause.");
-            }
+            document.getElementById('playButton').innerText = isPlaying ? "⏸ Pause Radio" : "▶ Lancer la Radio";
         }
 
-        // --- LOGIQUE ANIMATEUR ---
-        const studioLogs = document.getElementById('studioLogs');
-        
-        function addLog(message) {
-            studioLogs.innerHTML += "<br>> " + message;
-            studioLogs.scrollTop = studioLogs.scrollHeight;
-        }
-
+        // --- MICRO STREAMING ---
         async function startStreaming() {
-            addLog("Demande d'accès au micro...");
+            const studioLogs = document.getElementById('studioLogs');
+            studioLogs.innerHTML += "<br>> Demande du micro...";
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                addLog("Micro branché avec succès !");
-                addLog("Connexion au serveur de streaming...");
-                
-                setTimeout(() => {
-                    addLog("Erreur : impossible de joindre le serveur. Est-il allumé ?");
-                }, 1500);
-
+                await navigator.mediaDevices.getUserMedia({ audio: true });
+                studioLogs.innerHTML += "<br>> Micro branché ! Tentative de flux...";
             } catch (err) {
-                addLog("Erreur d'accès au micro : " + err.message);
+                studioLogs.innerHTML += "<br>> Erreur micro : " + err.message;
             }
         }
     </script>
-
 </body>
 </html>
