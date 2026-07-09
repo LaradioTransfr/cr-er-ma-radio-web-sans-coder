@@ -1,0 +1,9 @@
+{
+  "name": "transfr-backend",
+  "version": "1.0.0",
+  "description": "Backend pour la radio Transfr",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+}
