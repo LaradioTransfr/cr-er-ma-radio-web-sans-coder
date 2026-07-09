@@ -1,4 +1,4 @@
-// server.js - Le Serveur Pont Audio Transfr avec Vrai Compteur
+// server.js - Le Serveur Pont Audio Transfr avec Gestion des Rôles
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -17,34 +17,53 @@ function broadcastUserCount() {
     const countData = JSON.stringify({ type: 'count', value: wss.clients.size });
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(countData); // Envoie le chiffre en texte
+            client.send(countData);
         }
     });
 }
 
 wss.on('connection', (ws) => {
-    console.log('👥 Un utilisateur vient de se connecter à Transfr');
-    broadcastUserCount(); // Quelqu'un se connecte -> On recalcule et met à jour
+    console.log('👥 Un utilisateur s’est connecté à Transfr');
+    broadcastUserCount();
+
+    // Par défaut, chaque nouvelle connexion est un auditeur
+    ws.isAnimateur = false;
 
     ws.on('message', (message) => {
-        // Transmettre les données (son du micro) à TOUS les autres connectés
-        wss.clients.forEach((client) => {
-            // On vérifie que c'est bien du son binaire et pas du texte JSON
-            if (client !== ws && client.readyState === WebSocket.OPEN && !(typeof message === 'string')) {
-                client.send(message);
+        // 1. Si le message est du texte (JSON)
+        if (typeof message === 'string') {
+            try {
+                const data = JSON.parse(message);
+                if (data.type === 'setRole' && data.role === 'animateur') {
+                    ws.isAnimateur = true;
+                    console.log('🎙️ Un utilisateur a pris le contrôle du Micro Animateur !');
+                }
+            } catch (e) {
+                // Pas du JSON valide, on ignore
             }
-        });
+            return;
+        }
+
+        // 2. Si c'est du son binaire, et que ça vient bien de l'animateur
+        if (ws.isAnimateur) {
+            wss.clients.forEach((client) => {
+                // On envoie le son UNIQUEMENT aux auditeurs (pas à l'animateur lui-même)
+                if (client !== ws && client.readyState === WebSocket.OPEN && !client.isAnimateur) {
+                    client.send(message);
+                }
+            });
+        }
     });
 
     ws.on('close', () => {
         console.log('🏃 Un utilisateur a quitté la page');
-        broadcastUserCount(); // Quelqu'un quitte -> On recalcule et met à jour
+        broadcastUserCount();
     });
 });
 
 server.listen(PORT, () => {
     console.log(`\n======================================================`);
-    console.log(`🚀 LE SERVEUR TRANSFR TRANSPORTE LE SON SUR LE PORT ${PORT} 🚀`);
-    console.log(`👥 COMPTEUR D'AUDITEURS EN DIRECT ACTIF SANS CODAGE`);
+    console.log(`🚀 SERVEUR TRANSFR PRÊT SUR LE PORT ${PORT} 🚀`);
+    console.log(`🔊 ROUTAGE AUDIO INNÉ : DU MICRO VERS LES AUDITEURS`);
     console.log(`======================================================\n`);
 });
