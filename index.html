@@ -16,7 +16,7 @@
         .menu-btn.locked { opacity: 0.3; cursor: not-allowed; }
         
         /* ZONE PRINCIPALE */
-        .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
         header { width: 100%; display: flex; justify-content: flex-end; position: absolute; top: 30px; right: 40px; }
         .auth-buttons button { background-color: #ff4757; color: white; border: none; padding: 10px 20px; margin-left: 10px; border-radius: 20px; cursor: pointer; font-weight: bold; }
         .auth-buttons button.secondary { background-color: transparent; border: 2px solid #ffffff; }
@@ -26,7 +26,8 @@
         .card { background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); text-align: center; width: 100%; }
         
         h2 { margin-bottom: 15px; font-size: 26px; color: #ff4757; }
-        .status { color: #2ed573; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .subtitle { font-size: 14px; color: #a4b0be; margin-bottom: 25px; line-height: 1.5; }
+        .status { color: #2ed573; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; }
         .live-dot { width: 12px; height: 12px; background-color: #2ed573; border-radius: 50%; animation: blink 1.5s infinite; }
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         
@@ -35,10 +36,13 @@
 
         .btn { background-color: #ff4757; color: white; border: none; padding: 16px 32px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 15px; }
         .btn-stream { background-color: #1e90ff; }
-        .log-box { background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 12px; margin-top: 25px; font-family: monospace; font-size: 13px; text-align: left; max-height: 120px; overflow-y: auto; color: #57ffb4; }
+        .log-box { background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 12px; margin-top: 25px; font-family: monospace; font-size: 13px; text-align: left; max-height: 140px; overflow-y: auto; color: #57ffb4; }
         
-        input[type="text"], input[type="password"] { width: 100%; padding: 14px 20px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 16px; outline: none; }
-        .social-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 15px; text-align: left; }
+        label { text-align: left; display: block; font-size: 14px; color: #ff4757; font-weight: 600; margin-top: 15px; margin-bottom: 5px; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 14px 20px; margin: 5px 0 15px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 16px; outline: none; }
+        
+        .social-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 16px; margin-bottom: 12px; text-align: left; border: 1px solid rgba(255,255,255,0.02); }
+        input[type="checkbox"] { width: 22px; height: 22px; accent-color: #ff4757; cursor: pointer; }
         
         /* AUTH OVERLAY */
         .auth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 8, 15, 0.95); z-index: 100; justify-content: center; align-items: center; }
@@ -86,11 +90,33 @@
         </div>
 
         <div id="tab-social" class="tab-content">
-            <div class="card">
-                <h2>Réseaux Sociaux Connectés</h2>
+            <div class="card" style="max-height: 75vh; overflow-y: auto;">
+                <h2>Diffusion Multi-Réseaux</h2>
+                <p class="subtitle">Active les réseaux où tu veux diffuser en même temps.</p>
+                
                 <div class="social-row">
                     <div style="flex:1; margin-right:10px;"><strong>🔴 YouTube Live</strong><input type="password" id="ytKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
                     <input type="checkbox" id="ytToggle" onchange="saveSocial()">
+                </div>
+
+                <div class="social-row">
+                    <div style="flex:1; margin-right:10px;"><strong>👾 Twitch TV</strong><input type="password" id="twitchKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <input type="checkbox" id="twitchToggle" onchange="saveSocial()">
+                </div>
+
+                <div class="social-row">
+                    <div style="flex:1; margin-right:10px;"><strong>📸 Instagram Live</strong><input type="password" id="instaKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <input type="checkbox" id="instaToggle" onchange="saveSocial()">
+                </div>
+
+                <div class="social-row">
+                    <div style="flex:1; margin-right:10px;"><strong>🎵 TikTok Live</strong><input type="password" id="tiktokKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <input type="checkbox" id="tiktokToggle" onchange="saveSocial()">
+                </div>
+
+                <div class="social-row">
+                    <div style="flex:1; margin-right:10px;"><strong>📘 Facebook Live</strong><input type="password" id="fbKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <input type="checkbox" id="fbToggle" onchange="saveSocial()">
                 </div>
             </div>
         </div>
@@ -98,7 +124,9 @@
         <div id="tab-settings" class="tab-content">
             <div class="card">
                 <h2>Configuration Radio</h2>
+                <label>Nom de ta Station :</label>
                 <input type="text" id="radioNameInput" value="Ma Radio Web" oninput="saveRadioSettings()">
+                <label>Logo de la Radio :</label>
                 <input type="file" id="radioPhotoFile" accept="image/*" onchange="uploadRadioPhoto()">
             </div>
         </div>
@@ -106,10 +134,10 @@
 
     <div class="auth-overlay" id="authOverlay">
         <div class="auth-card">
-            <h2 id="authTitle">Connexion</h2>
-            <input type="text" id="authUsername" placeholder="Pseudo">
+            <h2 id="authTitle">Création de Compte</h2>
+            <input type="text" id="authUsername" placeholder="Choisis un pseudo">
             <input type="password" id="authPassword" placeholder="Mot de passe">
-            <button class="btn" onclick="submitAuth()">Valider</button>
+            <button class="btn" onclick="submitAuth()">Créer mon compte & Connecter</button>
             <button class="btn" style="background:#747d8c;" onclick="hideAuthPage()">Retour</button>
         </div>
     </div>
@@ -120,7 +148,6 @@
         let processor;
         let globalStream;
 
-        // SE SOUVENIR DE TOUT AU CHARGEMENT
         window.onload = function() {
             const savedUser = localStorage.getItem('tf_user');
             if (savedUser) { activateUser(savedUser); }
@@ -131,6 +158,18 @@
             const savedPhoto = localStorage.getItem('tf_photo');
             if (savedPhoto) { displayPhoto(savedPhoto); }
 
+            // Charger toutes les clés de réseaux
+            document.getElementById('ytKey').value = localStorage.getItem('tf_yt_key') || '';
+            document.getElementById('ytToggle').checked = localStorage.getItem('tf_yt_toggle') === 'true';
+            document.getElementById('twitchKey').value = localStorage.getItem('tf_tw_key') || '';
+            document.getElementById('twitchToggle').checked = localStorage.getItem('tf_tw_toggle') === 'true';
+            document.getElementById('instaKey').value = localStorage.getItem('tf_ins_key') || '';
+            document.getElementById('instaToggle').checked = localStorage.getItem('tf_ins_toggle') === 'true';
+            document.getElementById('tiktokKey').value = localStorage.getItem('tf_tk_key') || '';
+            document.getElementById('tiktokToggle').checked = localStorage.getItem('tf_tk_toggle') === 'true';
+            document.getElementById('fbKey').value = localStorage.getItem('tf_fb_key') || '';
+            document.getElementById('fbToggle').checked = localStorage.getItem('tf_fb_toggle') === 'true';
+
             connectServer();
         };
 
@@ -139,7 +178,6 @@
             socket = new WebSocket(protocol + window.location.host);
             socket.binaryType = 'arraybuffer';
 
-            // QUAND LE SERVEUR ENVOIE DU SON AUX AUDITEURS
             socket.onmessage = async (event) => {
                 if (event.data instanceof ArrayBuffer && !globalStream) {
                     playAudioBuffer(event.data);
@@ -147,7 +185,6 @@
             };
         }
 
-        // --- ENVOYER LE SON (ANIMATEUR) ---
         async function startStreaming() {
             const logs = document.getElementById('studioLogs');
             try {
@@ -161,23 +198,19 @@
 
                 processor.onaudioprocess = (e) => {
                     const inputData = e.inputBuffer.getChannelData(0);
-                    // Conversion en Int16 pour envoyer moins de données au serveur
                     const audioBuffer = new Int16Array(inputData.length);
                     for (let i = 0; i < inputData.length; i++) {
                         audioBuffer[i] = Math.min(1, Math.max(-1, inputData[i])) * 0x7FFF;
                     }
                     if (socket.readyState === WebSocket.OPEN) {
-                        socket.send(audioBuffer.buffer); // Le son part au serveur !
+                        socket.send(audioBuffer.buffer);
                     }
                 };
                 logs.innerHTML = "🎙️ EN DIRECT ! Ton micro est envoyé au serveur pour tous les auditeurs !";
             } catch (err) { logs.innerHTML = "Erreur micro : " + err.message; }
         }
 
-        // --- RECEVOIR ET JOUER LE SON (AUDITEUR) ---
-        let audioStack = [];
         let nextStartTime = 0;
-        
         function playAudioBuffer(arrayBuffer) {
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
             
@@ -206,12 +239,12 @@
             document.getElementById('playButton').innerText = "🔊 Écoute en cours...";
         }
 
-        // FONCTIONS COMPTE ET CONFIGURATION
         function showAuthPage(type) { document.getElementById('authOverlay').style.display = 'flex'; }
         function hideAuthPage() { document.getElementById('authOverlay').style.display = 'none'; }
         
         function submitAuth() {
             const user = document.getElementById('authUsername').value;
+            if(!user) return;
             localStorage.setItem('tf_user', user);
             activateUser(user);
             hideAuthPage();
@@ -231,10 +264,34 @@
 
         function logout() { localStorage.removeItem('tf_user'); window.location.reload(); }
         function saveRadioSettings() { const n = document.getElementById('radioNameInput').value; document.getElementById('display-radio-name').innerText = n; localStorage.setItem('tf_name', n); }
-        function uploadRadioPhoto() { const file = document.getElementById('radioPhotoFile').files[0]; const reader = new FileReader(); reader.onloadend = () => { localStorage.setItem('tf_photo', reader.result); displayPhoto(reader.result); }; if (file) reader.readAsDataURL(file); }
+        
+        function uploadRadioPhoto() { 
+            const file = document.getElementById('radioPhotoFile').files[0]; 
+            const reader = new FileReader(); 
+            reader.onloadend = () => { localStorage.setItem('tf_photo', reader.result); displayPhoto(reader.result); }; 
+            if (file) reader.readAsDataURL(file); 
+        }
+        
         function displayPhoto(data) { document.getElementById('noPhotoText').style.display = 'none'; const img = document.getElementById('playerAvatarImg'); img.src = data; img.style.display = 'block'; }
-        function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-        function saveSocial() {}
+        function switchTab(id, btn) { 
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); 
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active'); 
+            btn.classList.add('active');
+        }
+        
+        function saveSocial() {
+            localStorage.setItem('tf_yt_key', document.getElementById('ytKey').value);
+            localStorage.setItem('tf_yt_toggle', document.getElementById('ytToggle').checked);
+            localStorage.setItem('tf_tw_key', document.getElementById('twitchKey').value);
+            localStorage.setItem('tf_tw_toggle', document.getElementById('twitchToggle').checked);
+            localStorage.setItem('tf_ins_key', document.getElementById('instaKey').value);
+            localStorage.setItem('tf_ins_toggle', document.getElementById('instaToggle').checked);
+            localStorage.setItem('tf_tk_key', document.getElementById('tiktokKey').value);
+            localStorage.setItem('tf_tk_toggle', document.getElementById('tiktokToggle').checked);
+            localStorage.setItem('tf_fb_key', document.getElementById('fbKey').value);
+            localStorage.setItem('tf_fb_toggle', document.getElementById('fbToggle').checked);
+        }
     </script>
 </body>
 </html>
