@@ -3,236 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfr - Crée ta Web Radio Sans Coder</title>
+    <title>Transfr - Crée ta Web Radio</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: linear-gradient(135deg, #12121c, #08080f); color: #ffffff; display: flex; min-height: 100vh; overflow-x: hidden; }
         
-        /* BARRE LATÉRALE (SIDEBAR) */
+        /* SIDEBAR */
         .sidebar { width: 300px; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px); border-right: 1px solid rgba(255, 255, 255, 0.08); display: flex; flex-direction: column; padding: 35px 25px; z-index: 10; }
-        .logo { font-size: 28px; font-weight: 800; color: #ff4757; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; text-align: center; text-shadow: 0 0 10px rgba(255, 71, 87, 0.3); }
-        .menu-btn { background: transparent; color: #a4b0be; border: none; padding: 15px 20px; text-align: left; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 14px; margin-bottom: 12px; transition: all 0.3s ease; display: flex; align-items: center; gap: 12px; width: 100%; }
-        .menu-btn:hover, .menu-btn.active { background-color: #ff4757; color: white; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.4); }
+        .logo { font-size: 28px; font-weight: 800; color: #ff4757; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 40px; text-align: center; }
+        .menu-btn { background: transparent; color: #a4b0be; border: none; padding: 15px 20px; text-align: left; font-size: 16px; font-weight: 600; cursor: pointer; border-radius: 14px; margin-bottom: 12px; transition: 0.3s; display: flex; align-items: center; gap: 12px; width: 100%; }
+        .menu-btn:hover, .menu-btn.active { background-color: #ff4757; color: white; }
+        .menu-btn.locked { opacity: 0.3; cursor: not-allowed; }
         
-        /* CONTENU PRINCIPAL */
+        /* ZONE PRINCIPALE */
         .main-content { flex: 1; padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .tab-content { display: none; width: 100%; max-width: 600px; animation: fadeIn 0.4s ease; }
+        header { width: 100%; display: flex; justify-content: flex-end; position: absolute; top: 30px; right: 40px; }
+        .auth-buttons button { background-color: #ff4757; color: white; border: none; padding: 10px 20px; margin-left: 10px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .auth-buttons button.secondary { background-color: transparent; border: 2px solid #ffffff; }
+        
+        .tab-content { display: none; width: 100%; max-width: 600px; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); text-align: center; width: 100%; }
         
-        /* CARTES ET BLOCS */
-        .card { background: rgba(255, 255, 255, 0.03); padding: 40px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(8px); text-align: center; width: 100%; margin-bottom: 20px; }
-        h2 { margin-bottom: 15px; font-size: 26px; color: #ff4757; font-weight: 700; }
-        .subtitle { font-size: 14px; color: #a4b0be; margin-bottom: 25px; line-height: 1.5; }
-        
-        /* STATUT ET COMPTEUR */
-        .status { color: #2ed573; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; }
+        h2 { margin-bottom: 15px; font-size: 26px; color: #ff4757; }
+        .status { color: #2ed573; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .live-dot { width: 12px; height: 12px; background-color: #2ed573; border-radius: 50%; animation: blink 1.5s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 0.3; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.1); } }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         
-        /* ZONE PHOTO DU LOGO RADIO */
-        .radio-avatar-preview { width: 160px; height: 160px; border-radius: 25px; background-color: rgba(255,255,255,0.05); margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed rgba(255,255,255,0.15); transition: 0.3s; }
+        .radio-avatar-preview { width: 150px; height: 150px; border-radius: 25px; background-color: rgba(255,255,255,0.05); margin: 0 auto 25px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed rgba(255,255,255,0.15); }
         .radio-avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* BOUTONS ET ENTRÉES */
-        .btn { background-color: #ff4757; color: white; border: none; padding: 16px 32px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; width: 100%; margin-top: 15px; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.2); }
-        .btn:hover { background-color: #ff6b81; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4); }
-        .btn-stream { background-color: #1e90ff; box-shadow: 0 4px 15px rgba(30, 144, 255, 0.2); }
-        .btn-stream:hover { background-color: #54a0ff; box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4); }
+        .btn { background-color: #ff4757; color: white; border: none; padding: 16px 32px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 15px; }
+        .btn-stream { background-color: #1e90ff; }
+        .log-box { background: rgba(0, 0, 0, 0.5); padding: 15px; border-radius: 12px; margin-top: 25px; font-family: monospace; font-size: 13px; text-align: left; max-height: 120px; overflow-y: auto; color: #57ffb4; }
         
-        .log-box { background: rgba(0, 0, 0, 0.5); padding: 18px; border-radius: 12px; margin-top: 25px; font-family: 'Courier New', monospace; font-size: 13px; text-align: left; max-height: 150px; overflow-y: auto; color: #57ffb4; border: 1px solid rgba(255,255,255,0.05); }
+        input[type="text"], input[type="password"] { width: 100%; padding: 14px 20px; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 16px; outline: none; }
+        .social-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 15px; text-align: left; }
         
-        label { text-align: left; display: block; font-size: 14px; color: #ff4757; font-weight: 600; margin-top: 15px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        input[type="text"], input[type="password"] { width: 100%; padding: 14px 20px; margin: 5px 0 15px 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; font-size: 16px; outline: none; transition: 0.3s; }
-        input[type="text"]:focus, input[type="password"]:focus { border-color: #ff4757; background: rgba(0,0,0,0.5); }
-        
-        input[type="file"] { background: rgba(255,255,255,0.02); width: 100%; padding: 15px; border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1); color: #a4b0be; cursor: pointer; font-size: 14px; }
-        
-        .social-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 16px; margin-bottom: 15px; text-align: left; border: 1px solid rgba(255,255,255,0.02); }
-        
-        /* CASE À COCHER DESIGN */
-        input[type="checkbox"] { width: 22px; height: 22px; accent-color: #ff4757; cursor: pointer; }
+        /* AUTH OVERLAY */
+        .auth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 8, 15, 0.95); z-index: 100; justify-content: center; align-items: center; }
+        .auth-card { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); width: 100%; max-width: 400px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
+    <header>
+        <div class="auth-buttons" id="auth-section">
+            <span id="user-welcome" style="display: none; color: #2ed573; margin-right: 15px; font-weight: bold;"></span>
+            <button class="secondary" id="loginBtn" onclick="showAuthPage('login')">Connexion</button>
+            <button id="registerBtn" onclick="showAuthPage('register')">Créer un compte</button>
+            <button id="logoutBtn" style="display: none; background-color:#747d8c;" onclick="logout()">Déconnexion</button>
+        </div>
+    </header>
+
     <div class="sidebar">
         <div class="logo">Transfr</div>
         <button class="menu-btn active" onclick="switchTab('tab-listen', this)">📻 Écouter la Radio</button>
-        <button class="menu-btn" onclick="switchTab('tab-studio', this)">🎙 Mon Studio</button>
-        <button class="menu-btn" onclick="switchTab('tab-social', this)">🌐 Multistreaming</button>
+        <button class="menu-btn locked" id="btn-studio" disabled onclick="switchTab('tab-studio', this)">🎙 Mon Studio</button>
+        <button class="menu-btn locked" id="btn-social" disabled onclick="switchTab('tab-social', this)">🌐 Multistreaming</button>
         <button class="menu-btn" onclick="switchTab('tab-settings', this)">⚙️ Configuration</button>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
-
-        <!-- ONGLET 1 : LECTEUR POUR L'AUDITEUR -->
         <div id="tab-listen" class="tab-content active">
             <div class="card">
                 <div class="radio-avatar-preview">
-                    <span style="color: #a4b0be; font-size: 14px;" id="noPhotoText">Pas de logo</span>
+                    <span id="noPhotoText">Pas de logo</span>
                     <img id="playerAvatarImg" src="" style="display: none;">
                 </div>
-                <h2 id="display-radio-name">Ma Super Radio</h2>
-                <div class="status"><div class="live-dot"></div> EN DIRECT SUR INTERNET</div>
-                <button class="btn" id="playButton" onclick="togglePlay()">▶ Brancher le Flux Audio</button>
+                <h2 id="display-radio-name">Ma Radio Web</h2>
+                <div class="status"><div class="live-dot"></div> EN DIRECT</div>
+                <button class="btn" id="playButton" onclick="togglePlay()">▶ Brancher le Flux en Direct</button>
             </div>
         </div>
 
-        <!-- ONGLET 2 : STUDIO SANS CODE -->
         <div id="tab-studio" class="tab-content">
             <div class="card">
                 <h2>Studio Animateur Direct</h2>
-                <p class="subtitle">Clique sur le bouton bleu ci-dessous pour capturer ton micro et lancer ta diffusion globale sans aucune configuration technique.</p>
-                <button class="btn btn-stream" id="streamButton" onclick="startStreaming()">🎙 Ouvrir l'Antenne (Micro)</button>
-                <div class="log-box" id="studioLogs">[Système] Console Transfr prête. En attente du signal...</div>
+                <button class="btn btn-stream" id="streamButton" onclick="startStreaming()">🎙 Ouvrir le Micro et Diffuser</button>
+                <div class="log-box" id="studioLogs">Studio prêt. Parle dans ton micro pour envoyer le son au serveur.</div>
             </div>
         </div>
 
-        <!-- ONGLET 3 : MULTISTREAMING AUTOMATIQUE -->
         <div id="tab-social" class="tab-content">
-            <div class="card" style="max-height: 80vh; overflow-y: auto;">
-                <h2>Diffusion Multi-Réseaux</h2>
-                <p class="subtitle">Renseigne tes clés de transmission. Notre système s'occupe de dupliquer ton direct partout en même temps.</p>
-                
+            <div class="card">
+                <h2>Réseaux Sociaux Connectés</h2>
                 <div class="social-row">
-                    <div style="flex:1; margin-right:15px;">
-                        <strong>🔴 YouTube Live</strong>
-                        <input type="password" id="ytKey" placeholder="Colle ta clé de flux YouTube" oninput="saveSocialConfig()">
-                    </div>
-                    <input type="checkbox" id="ytToggle" onchange="saveSocialConfig()">
-                </div>
-                
-                <div class="social-row">
-                    <div style="flex:1; margin-right:15px;">
-                        <strong>👾 Twitch TV</strong>
-                        <input type="password" id="twitchKey" placeholder="Colle ta clé de flux Twitch" oninput="saveSocialConfig()">
-                    </div>
-                    <input type="checkbox" id="twitchToggle" onchange="saveSocialConfig()">
-                </div>
-
-                <div class="social-row">
-                    <div style="flex:1; margin-right:15px;">
-                        <strong>📸 Instagram Live</strong>
-                        <input type="password" id="instaKey" placeholder="Colle ta clé de flux Instagram" oninput="saveSocialConfig()">
-                    </div>
-                    <input type="checkbox" id="instaToggle" onchange="saveSocialConfig()">
+                    <div style="flex:1; margin-right:10px;"><strong>🔴 YouTube Live</strong><input type="password" id="ytKey" placeholder="Clé de flux" oninput="saveSocial()"></div>
+                    <input type="checkbox" id="ytToggle" onchange="saveSocial()">
                 </div>
             </div>
         </div>
 
-        <!-- ONGLET 4 : CONFIGURATION NO-CODE -->
         <div id="tab-settings" class="tab-content">
             <div class="card">
-                <h2>Panneau de Configuration</h2>
-                <p class="subtitle">Personnalise l'identité visuelle de ta station de radio. Tout est sauvegardé automatiquement !</p>
-                
-                <label>Nom de ta Station Web Radio</label>
-                <input type="text" id="radioNameInput" value="Ma Super Radio" oninput="saveRadioSettings()">
-                
-                <label>Importer le Logo de la Radio (.PNG, .JPG)</label>
+                <h2>Configuration Radio</h2>
+                <input type="text" id="radioNameInput" value="Ma Radio Web" oninput="saveRadioSettings()">
                 <input type="file" id="radioPhotoFile" accept="image/*" onchange="uploadRadioPhoto()">
-                
-                <p style="font-size: 13px; color: #2ed573; margin-top: 20px; font-weight: 600;">💾 Système de mémoire intégré actif ! Aucun fichier ne sera perdu.</p>
             </div>
         </div>
+    </div>
 
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-card">
+            <h2 id="authTitle">Connexion</h2>
+            <input type="text" id="authUsername" placeholder="Pseudo">
+            <input type="password" id="authPassword" placeholder="Mot de passe">
+            <button class="btn" onclick="submitAuth()">Valider</button>
+            <button class="btn" style="background:#747d8c;" onclick="hideAuthPage()">Retour</button>
+        </div>
     </div>
 
     <script>
-        // --- CHARGEMENT AUTOMATIQUE DE LA MÉMOIRE DU NAVIGATEUR ---
+        let socket;
+        let audioContext;
+        let processor;
+        let globalStream;
+
+        // SE SOUVENIR DE TOUT AU CHARGEMENT
         window.onload = function() {
-            // Charger le nom de la radio
-            const savedRadioName = localStorage.getItem('transfr_no_code_name');
-            if (savedRadioName) {
-                document.getElementById('radioNameInput').value = savedRadioName;
-                document.getElementById('display-radio-name').innerText = savedRadioName;
-            }
+            const savedUser = localStorage.getItem('tf_user');
+            if (savedUser) { activateUser(savedUser); }
             
-            // Charger l'image ou le logo de la radio
-            const savedPhoto = localStorage.getItem('transfr_no_code_photo');
+            const savedName = localStorage.getItem('tf_name');
+            if (savedName) { document.getElementById('radioNameInput').value = savedName; document.getElementById('display-radio-name').innerText = savedName; }
+            
+            const savedPhoto = localStorage.getItem('tf_photo');
             if (savedPhoto) { displayPhoto(savedPhoto); }
-            
-            // Charger les configurations des clés réseaux
-            document.getElementById('ytKey').value = localStorage.getItem('transfr_nc_yt_key') || '';
-            document.getElementById('ytToggle').checked = localStorage.getItem('transfr_nc_yt_toggle') === 'true';
-            document.getElementById('twitchKey').value = localStorage.getItem('transfr_nc_tw_key') || '';
-            document.getElementById('twitchToggle').checked = localStorage.getItem('transfr_nc_tw_toggle') === 'true';
-            document.getElementById('instaKey').value = localStorage.getItem('transfr_nc_ins_key') || '';
-            document.getElementById('instaToggle').checked = localStorage.getItem('transfr_nc_ins_toggle') === 'true';
+
+            connectServer();
         };
 
-        // CHANGER D'ONGLET
-        function switchTab(tabId, button) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            button.classList.add('active');
+        function connectServer() {
+            const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            socket = new WebSocket(protocol + window.location.host);
+            socket.binaryType = 'arraybuffer';
+
+            // QUAND LE SERVEUR ENVOIE DU SON AUX AUDITEURS
+            socket.onmessage = async (event) => {
+                if (event.data instanceof ArrayBuffer && !globalStream) {
+                    playAudioBuffer(event.data);
+                }
+            };
         }
 
-        // SAUVEGARDER LE NOM DE LA STATION EN TEMPS RÉEL
-        function saveRadioSettings() {
-            const name = document.getElementById('radioNameInput').value;
-            document.getElementById('display-radio-name').innerText = name || "Ma Super Radio";
-            localStorage.setItem('transfr_no_code_name', name);
-        }
-
-        // CONVERTIR ET SAUVEGARDER LE LOGO SANS SERVEUR
-        function uploadRadioPhoto() {
-            const file = document.getElementById('radioPhotoFile').files[0];
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                localStorage.setItem('transfr_no_code_photo', reader.result);
-                displayPhoto(reader.result);
-            }
-            if (file) { reader.readAsDataURL(file); }
-        }
-
-        function displayPhoto(imageData) {
-            document.getElementById('noPhotoText').style.display = 'none';
-            const img = document.getElementById('playerAvatarImg');
-            img.src = imageData;
-            img.style.display = 'block';
-        }
-
-        // ENREGISTRER LES CLES DE DIRECT
-        function saveSocialConfig() {
-            localStorage.setItem('transfr_nc_yt_key', document.getElementById('ytKey').value);
-            localStorage.setItem('transfr_nc_yt_toggle', document.getElementById('ytToggle').checked);
-            localStorage.setItem('transfr_nc_tw_key', document.getElementById('twitchKey').value);
-            localStorage.setItem('transfr_nc_tw_toggle', document.getElementById('twitchToggle').checked);
-            localStorage.setItem('transfr_nc_ins_key', document.getElementById('instaKey').value);
-            localStorage.setItem('transfr_nc_ins_toggle', document.getElementById('instaToggle').checked);
-        }
-
-        // BOUTON LECTEUR AUDITEUR
-        let listening = false;
-        function togglePlay() {
-            listening = !listening;
-            document.getElementById('playButton').innerText = listening ? "⏸ Couper le Flux Radio" : "▶ Lancer la Radio";
-            document.getElementById('playButton').style.backgroundColor = listening ? "#747d8c" : "#ff4757";
-        }
-
-        // CAPTURE AUDIO DU STUDIO VIA LE NAVIGATEUR (PAS DE COMPLEXITÉ)
+        // --- ENVOYER LE SON (ANIMATEUR) ---
         async function startStreaming() {
             const logs = document.getElementById('studioLogs');
-            logs.innerHTML += "<br>> Connexion au moteur audio natif...";
             try {
-                // Utilise la puissance du navigateur de l'utilisateur pour capter le micro sans code !
-                await navigator.mediaDevices.getUserMedia({ audio: true });
-                logs.innerHTML += "<br>> [Succès] 🎙️ Flux microphone branché en direct !";
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+                globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const source = audioContext.createMediaStreamSource(globalStream);
                 
-                if (document.getElementById('ytToggle').checked) logs.innerHTML += "<br>> [Propagateur] Appairage avec le flux YouTube configuré...";
-                if (document.getElementById('twitchToggle').checked) logs.innerHTML += "<br>> [Propagateur] Appairage avec le flux Twitch configuré...";
-                if (document.getElementById('instaToggle').checked) logs.innerHTML += "<br>> [Propagateur] Appairage avec le flux Instagram configuré...";
-                
-                logs.innerHTML += "<br>> 🚀 BRAVO ! Ta radio diffuse en live sans aucun serveur requis !";
-            } catch (err) { 
-                logs.innerHTML += "<br>> [Erreur] Accès micro refusé ou indisponible : " + err.message; 
-            }
+                processor = audioContext.createScriptProcessor(4096, 1, 1);
+                source.connect(processor);
+                processor.connect(audioContext.destination);
+
+                processor.onaudioprocess = (e) => {
+                    const inputData = e.inputBuffer.getChannelData(0);
+                    // Conversion en Int16 pour envoyer moins de données au serveur
+                    const audioBuffer = new Int16Array(inputData.length);
+                    for (let i = 0; i < inputData.length; i++) {
+                        audioBuffer[i] = Math.min(1, Math.max(-1, inputData[i])) * 0x7FFF;
+                    }
+                    if (socket.readyState === WebSocket.OPEN) {
+                        socket.send(audioBuffer.buffer); // Le son part au serveur !
+                    }
+                };
+                logs.innerHTML = "🎙️ EN DIRECT ! Ton micro est envoyé au serveur pour tous les auditeurs !";
+            } catch (err) { logs.innerHTML = "Erreur micro : " + err.message; }
         }
+
+        // --- RECEVOIR ET JOUER LE SON (AUDITEUR) ---
+        let audioStack = [];
+        let nextStartTime = 0;
+        
+        function playAudioBuffer(arrayBuffer) {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+            
+            const int16Array = new Int16Array(arrayBuffer);
+            const float32Array = new Float32Array(int16Array.length);
+            for (let i = 0; i < int16Array.length; i++) {
+                float32Array[i] = int16Array[i] / 0x7FFF;
+            }
+
+            const buffer = audioContext.createBuffer(1, float32Array.length, 16000);
+            buffer.getChannelData(0).set(float32Array);
+
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+
+            if (nextStartTime < audioContext.currentTime) {
+                nextStartTime = audioContext.currentTime + 0.05;
+            }
+            source.start(nextStartTime);
+            nextStartTime += buffer.duration;
+        }
+
+        function togglePlay() {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+            document.getElementById('playButton').innerText = "🔊 Écoute en cours...";
+        }
+
+        // FONCTIONS COMPTE ET CONFIGURATION
+        function showAuthPage(type) { document.getElementById('authOverlay').style.display = 'flex'; }
+        function hideAuthPage() { document.getElementById('authOverlay').style.display = 'none'; }
+        
+        function submitAuth() {
+            const user = document.getElementById('authUsername').value;
+            localStorage.setItem('tf_user', user);
+            activateUser(user);
+            hideAuthPage();
+        }
+
+        function activateUser(user) {
+            document.getElementById('loginBtn').style.display = 'none';
+            document.getElementById('registerBtn').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'inline-block';
+            document.getElementById('user-welcome').innerText = "👋 " + user;
+            document.getElementById('user-welcome').style.display = 'inline';
+            document.getElementById('btn-studio').classList.remove('locked');
+            document.getElementById('btn-studio').removeAttribute('disabled');
+            document.getElementById('btn-social').classList.remove('locked');
+            document.getElementById('btn-social').removeAttribute('disabled');
+        }
+
+        function logout() { localStorage.removeItem('tf_user'); window.location.reload(); }
+        function saveRadioSettings() { const n = document.getElementById('radioNameInput').value; document.getElementById('display-radio-name').innerText = n; localStorage.setItem('tf_name', n); }
+        function uploadRadioPhoto() { const file = document.getElementById('radioPhotoFile').files[0]; const reader = new FileReader(); reader.onloadend = () => { localStorage.setItem('tf_photo', reader.result); displayPhoto(reader.result); }; if (file) reader.readAsDataURL(file); }
+        function displayPhoto(data) { document.getElementById('noPhotoText').style.display = 'none'; const img = document.getElementById('playerAvatarImg'); img.src = data; img.style.display = 'block'; }
+        function switchTab(id, btn) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        function saveSocial() {}
     </script>
 </body>
 </html>
